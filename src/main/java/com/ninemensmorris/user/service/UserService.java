@@ -14,7 +14,9 @@ public class UserService {
 
     public void signUp(UserSignUpDto userSignUpDto) {
 
-        if (userRepository.findByEmail(userSignUpDto.getEmail()).isPresent()) {
+        String email = userSignUpDto.getEmail();
+        User existingUser = userRepository.findByEmail(email);
+        if (existingUser != null) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
