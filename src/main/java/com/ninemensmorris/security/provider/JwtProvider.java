@@ -3,7 +3,6 @@ package com.ninemensmorris.security.provider;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,6 @@ public class JwtProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // JWT 토큰 생성
     public String generateToken(Long userId, Long expirationPeriod) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationPeriod);
@@ -52,17 +50,14 @@ public class JwtProvider {
                 .compact();
     }
 
-    // 액세스 토큰 생성
     public String generateAccessToken(Long userId) {
         return generateToken(userId, accessTokenExpirationPeriod);
     }
 
-    // 리프레시 토큰 생성
     public String generateRefreshToken(Long userId) {
         return generateToken(userId, refreshTokenExpirationPeriod);
     }
 
-    // JWT 토큰 검증
     public boolean validateToken(String token) {
 
         try {
@@ -79,7 +74,6 @@ public class JwtProvider {
         }
     }
 
-    // JWT 토큰에서 subject(사용자 식별자) 추출
     public Long extractSubject(String token) {
         String userIdString = Jwts.parserBuilder()
                 .setSigningKey(this.getSigningKey())
@@ -89,21 +83,5 @@ public class JwtProvider {
                 .getSubject();
 
         return Long.parseLong(userIdString); // 추출한 식별자 아이디를 Long 타입으로 변환하여 반환
-    }
-
-    public void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
-        response.setHeader(accessHeader, accessToken);
-    }
-
-    public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
-        response.setHeader(refreshHeader, refreshToken);
-    }
-
-    public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken) {
-        response.setStatus(HttpServletResponse.SC_OK);
-
-        setAccessTokenHeader(response, accessToken);
-        setRefreshTokenHeader(response, refreshToken);
-        log.info("Access Token and Refresh Token headers are set successfully");
     }
 }
