@@ -2,6 +2,7 @@ package com.ninemensmorris.config;
 
 import com.ninemensmorris.auth.service.CustomOAuth2UserService;
 import com.ninemensmorris.security.filter.JwtAuthenticationFilter;
+import com.ninemensmorris.security.handler.OAuth2SuccessHandler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,6 +30,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomOAuth2UserService oAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,6 +44,7 @@ public class SecurityConfig {
                 .oauth2Login((oauth2) -> oauth2
                         .redirectionEndpoint(endpoint -> endpoint.baseUri("/api/oauth2/kakao"))
                         .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
                 )
                 .sessionManagement(
                         (session) -> session
