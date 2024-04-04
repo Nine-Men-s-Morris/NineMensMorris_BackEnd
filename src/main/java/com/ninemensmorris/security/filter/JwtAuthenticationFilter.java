@@ -1,6 +1,6 @@
-package com.ninemensmorris.filter;
+package com.ninemensmorris.security.filter;
 
-import com.ninemensmorris.provider.JwtProvider;
+import com.ninemensmorris.security.provider.JwtProvider;
 import com.ninemensmorris.user.domain.User;
 import com.ninemensmorris.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -47,10 +47,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            String email = jwtProvider.extractSubject(token);
-            User user = userRepository.findByEmail(email);
+            Long userId = jwtProvider.extractSubject(token);
+            User user = userRepository.findById(userId).orElse(null);
             if (user == null) {
-                log.error("User not found for email: {}", email);
+                log.error("User not found for user id: {}", userId);
                 return;
             }
 
@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 사용자의 이메일을 사용하여 인증 토큰 생성
             AbstractAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(email, null);
+                    new UsernamePasswordAuthenticationToken(userId, null);
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             // 생성된 인증 토큰을 보안 컨텍스트에 설정

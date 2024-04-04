@@ -1,7 +1,6 @@
-package com.ninemensmorris.provider;
+package com.ninemensmorris.security.provider;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,12 +40,12 @@ public class JwtProvider {
     }
 
     // JWT 토큰 생성
-    public String generateToken(String email, Long expirationPeriod) {
+    public String generateToken(Long userId, Long expirationPeriod) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationPeriod);
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(this.getSigningKey())
@@ -54,13 +53,13 @@ public class JwtProvider {
     }
 
     // 액세스 토큰 생성
-    public String generateAccessToken(String email) {
-        return generateToken(email, accessTokenExpirationPeriod);
+    public String generateAccessToken(Long userId) {
+        return generateToken(userId, accessTokenExpirationPeriod);
     }
 
     // 리프레시 토큰 생성
-    public String generateRefreshToken(String email) {
-        return generateToken(email, refreshTokenExpirationPeriod);
+    public String generateRefreshToken(Long userId) {
+        return generateToken(userId, refreshTokenExpirationPeriod);
     }
 
     // JWT 토큰 검증
@@ -81,13 +80,15 @@ public class JwtProvider {
     }
 
     // JWT 토큰에서 subject(사용자 식별자) 추출
-    public String extractSubject(String token) {
-        return Jwts.parserBuilder()
+    public Long extractSubject(String token) {
+        String userIdString = Jwts.parserBuilder()
                 .setSigningKey(this.getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+
+        return Long.parseLong(userIdString); // 추출한 식별자 아이디를 Long 타입으로 변환하여 반환
     }
 
     public void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
