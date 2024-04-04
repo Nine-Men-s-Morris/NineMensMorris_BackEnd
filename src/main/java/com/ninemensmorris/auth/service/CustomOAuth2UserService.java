@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -52,14 +53,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = (String) account.get("email");
         String profileImg = (String) properties.get("profile_image");
 
-        User user = User.builder()
-                .providerId(userId)
-                .email(email)
-                .nickname(nickname)
-                .imageUrl(profileImg)
-                .score(0)
-                .build();
-
-        return userRepository.save(user);
+        Optional<User> optionalUser = Optional.ofNullable(userRepository.findByProviderId(userId));
+        if (optionalUser.isPresent()) {
+            return optionalUser.get();
+        } else {
+            User user = User.builder()
+                    .providerId(userId)
+                    .email(email)
+                    .nickname(nickname)
+                    .imageUrl(profileImg)
+                    .score(0)
+                    .build();
+            return userRepository.save(user);
+        }
     }
 }
