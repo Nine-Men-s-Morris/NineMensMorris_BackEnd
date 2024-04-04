@@ -68,7 +68,7 @@ public class JwtProvider {
 
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
+                    .setSigningKey(this.getSigningKey())
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
@@ -83,7 +83,7 @@ public class JwtProvider {
     // JWT 토큰에서 subject(사용자 식별자) 추출
     public String extractSubject(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+                .setSigningKey(this.getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
