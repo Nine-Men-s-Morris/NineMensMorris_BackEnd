@@ -1,7 +1,9 @@
-package com.ninemensmorris.auth.service;
+package com.ninemensmorris.provider;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -9,31 +11,37 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
 @Getter
 @Slf4j
-public class JwtService {
+public class JwtProvider {
 
-    @Value("${jwt.secretKey}")
+    @Value("${JWT_SECRET_KEY}")
     private String secretKey;
 
-    @Value("${jwt.access.expiration}")
+    @Value("${ACCESS_TOKEN_EXPIRATION}")
     private Long accessTokenExpirationPeriod;
 
-    @Value("${jwt.refresh.expiration}")
+    @Value("${REFRESH_TOKEN_EXPIRATION}")
     private Long refreshTokenExpirationPeriod;
 
-    @Value("${jwt.access.header}")
+    @Value("${ACCESS_TOKEN_HEADER}")
     private String accessHeader;
 
-    @Value("${jwt.refresh.header}")
+    @Value("${REFRESH_TOKEN_HEADER}")
     private String refreshHeader;
 
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
     // JWT 토큰 생성
-    public String generateToken(String email, long expirationPeriod) {
+    public String generateToken(String email, Long expirationPeriod) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationPeriod);
 
@@ -41,7 +49,7 @@ public class JwtService {
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiration)
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .signWith(this.getSigningKey())
                 .compact();
     }
 
@@ -57,19 +65,26 @@ public class JwtService {
 
     // JWT 토큰 검증
     public boolean validateToken(String token) {
+
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
             return true;
-        } catch (Exception ex) {
-            log.error("Failed to validate JWT token: {}", ex.getMessage());
+        } catch (Exception exception) {
+            log.error("Failed to validate JWT token: {}", exception.getMessage());
             return false;
         }
     }
 
     // JWT 토큰에서 subject(사용자 식별자) 추출
     public String extractSubject(String token) {
-        return Jwts.parser()
+        return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
