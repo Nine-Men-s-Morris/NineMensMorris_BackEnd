@@ -3,6 +3,7 @@ package com.ninemensmorris.security.handler;
 import com.ninemensmorris.security.provider.JwtProvider;
 import com.ninemensmorris.user.domain.CustomOAuth2User;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
         String userId = oAuth2User.getName();
-        String token = jwtProvider.generateAccessToken(Long.parseLong(userId));
+        String accessToken = jwtProvider.generateAccessToken(Long.parseLong(userId));
 
-        response.sendRedirect(domainUrl + "/auth/oauth-response/" + token + "/" + accessTokenExpiration);
+        Cookie accessTokenCookie = new Cookie("access_token", accessToken);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(Math.toIntExact(accessTokenExpiration / 1000));
+        accessTokenCookie.setHttpOnly(true);
+        //accessTokenCookie.setSecure(true); // 240404 ldhbenecia | https 설정 이후 사용
+        response.addCookie(accessTokenCookie);
+
+        response.sendRedirect(domainUrl);
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 }
