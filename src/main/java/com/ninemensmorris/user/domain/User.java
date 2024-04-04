@@ -11,7 +11,7 @@ import lombok.*;
 public class User {
 
     @Id
-    private Long providerId;
+    private Long userId;
 
     private String email;
     private String nickname;
