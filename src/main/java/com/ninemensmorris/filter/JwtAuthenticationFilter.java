@@ -64,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 생성된 인증 토큰을 보안 컨텍스트에 설정
             securityContext.setAuthentication(authenticationToken);
 
-// 설정된 보안 컨텍스트를 SecurityContextHolder에 설정
+            // 설정된 보안 컨텍스트를 SecurityContextHolder에 설정
             SecurityContextHolder.setContext(securityContext);
 
         } catch (Exception exception) {
