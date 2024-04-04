@@ -1,13 +1,13 @@
 package com.ninemensmorris.config;
 
-import com.ninemensmorris.filter.JwtAuthenticationFilter;
+import com.ninemensmorris.auth.service.CustomOAuth2UserService;
+import com.ninemensmorris.security.filter.JwtAuthenticationFilter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,6 +28,7 @@ import java.io.IOException;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomOAuth2UserService oAuth2UserService;
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,7 +39,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .oauth2Login(Customizer.withDefaults())
+                .oauth2Login((oauth2) -> oauth2
+                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/api/oauth2/kakao"))
+                        .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService))
+                )
                 .sessionManagement(
                         (session) -> session
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -73,10 +77,10 @@ class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
 
-        response.setContentType("applcation/json");
+        response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         // {"code": "NP", "message": "No Permission}
-        response.getWriter().write("{\"code\": \"NP\", \"message\": \"No Permission}");
+        response.getWriter().write("{\"code\": \"NP\", \"message\": \"No Permission\"}");
     }
 }
