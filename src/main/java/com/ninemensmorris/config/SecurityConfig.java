@@ -52,6 +52,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
                         .requestMatchers("/", "/api/oauth2/**").permitAll()
+//                        .requestMatchers("/api/user/**").hasRole("USER")
+//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling

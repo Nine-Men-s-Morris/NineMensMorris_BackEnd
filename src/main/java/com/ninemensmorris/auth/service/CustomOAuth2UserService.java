@@ -28,13 +28,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String oauthClientName = userRequest.getClientRegistration().getClientName();
-        Long userId = null;
 
         try {
             //System.out.println(new ObjectMapper().writeValueAsString(oAuth2User.getAttributes()));
         } catch (Exception exception) {
             log.error("Failed to oAuth2User: {}", exception.getMessage());
         }
+
+        Long userId = null;
 
         if (oauthClientName.equals("kakao")) {
             String idString = oAuth2User.getAttribute("id").toString();
@@ -66,6 +67,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .email(email)
                     .nickname(nickname)
                     .imageUrl(profileImg)
+                    .role("USER")
                     .score(0)
                     .build();
             return userRepository.save(user);
