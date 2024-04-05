@@ -19,9 +19,6 @@ public class User {
     private String email;
     private String nickname;
     private String imageUrl;
+    private String role;
     private int score;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_room_id")
-    private GameRoom gameRoom;
 }
