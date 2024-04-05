@@ -42,6 +42,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         //accessTokenCookie.setSecure(true); // 240404 ldhbenecia | https 설정 이후 사용
         response.addCookie(accessTokenCookie);
 
+        response.addHeader("Authorization", "Bearer " + accessToken);
+
         response.sendRedirect(domainUrl);
         response.setStatus(HttpServletResponse.SC_OK);
     }
