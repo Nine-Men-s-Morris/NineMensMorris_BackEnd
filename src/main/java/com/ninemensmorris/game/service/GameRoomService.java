@@ -1,10 +1,12 @@
 package com.ninemensmorris.game.service;
 
 import com.ninemensmorris.game.domain.GameRoom;
+import com.ninemensmorris.game.dto.GameRoomRequestDto;
+import com.ninemensmorris.game.dto.GameRoomResponseDto;
 import com.ninemensmorris.game.repository.GameRoomRepository;
-import com.ninemensmorris.user.domain.User;
-import com.ninemensmorris.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,41 +16,31 @@ import java.util.Optional;
 public class GameRoomService {
 
     private final GameRoomRepository gameRoomRepository;
-    private final UserRepository userRepository;
 
-    public GameRoom createGameRoom(Long roomId) {
+    public GameRoomResponseDto createGame(GameRoomRequestDto requestDto) {
+
+        // 현재 로그인한 사용자의 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUser = authentication.getName();
+
+
         GameRoom gameRoom = new GameRoom();
-        gameRoom.setRoomId(roomId);
-        return gameRoomRepository.save(gameRoom);
+        gameRoom.setRoomTitle(requestDto.getRoomTitle());
+        gameRoom.setHost(currentUser);
+
+        gameRoomRepository.save(gameRoom);
+
+        GameRoomResponseDto responseDto = new GameRoomResponseDto();
+        responseDto.setRoomTitle(gameRoom.getRoomTitle());
+        responseDto.setHost(gameRoom.getHost());
+        return responseDto;
     }
 
-    public Optional<GameRoom> getGameRoomById(Long roomId) {
+    public Optional<GameRoom> getGameById(Long roomId) {
         return gameRoomRepository.findById(roomId);
     }
 
-    public void addUserToGameRoom(Long roomId, Long userId) {
-        Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(roomId);
-        if (optionalGameRoom.isPresent()) {
-            GameRoom gameRoom = optionalGameRoom.get();
-            Optional<User> optionalUser = userRepository.findById(userId);
-            if (optionalUser.isPresent()) {
-                User user = optionalUser.get();
-                gameRoom.addUser(user);
-                gameRoomRepository.save(gameRoom);
-            }
-        }
-    }
-
-    public void removeUserFromGameRoom(Long roomId, Long userId) {
-        Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(roomId);
-        if (optionalGameRoom.isPresent()) {
-            GameRoom gameRoom = optionalGameRoom.get();
-            Optional<User> optionalUser = userRepository.findById(userId);
-            if (optionalUser.isPresent()) {
-                User user = optionalUser.get();
-                gameRoom.removeUser(user);
-                gameRoomRepository.save(gameRoom);
-            }
-        }
+    public void removeGame(Long roomId) {
+        gameRoomRepository.deleteById(roomId);
     }
 }

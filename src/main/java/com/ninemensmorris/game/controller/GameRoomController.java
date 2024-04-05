@@ -1,33 +1,30 @@
 package com.ninemensmorris.game.controller;
 
+import com.ninemensmorris.game.domain.GameRoom;
+import com.ninemensmorris.game.dto.GameRoomRequestDto;
+import com.ninemensmorris.game.dto.GameRoomResponseDto;
 import com.ninemensmorris.game.service.GameRoomService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+import java.security.Principal;
+
+@RestController
 @RequiredArgsConstructor
 public class GameRoomController {
 
-    private final GameRoomService gameService;
+    private final GameRoomService gameRoomService;
 
-    @MessageMapping("/createGameRoom")
-    @SendTo("/morris/gameRoomCreated")
-    public void createGameRoom(Long roomId) {
-        gameService.createGameRoom(roomId);
+    @PostMapping("/api/createGame")
+    public ResponseEntity<GameRoomResponseDto> createGame(@RequestBody GameRoomRequestDto requestDto) {
+        GameRoomResponseDto responseDto = gameRoomService.createGame(requestDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
-
-    @MessageMapping("/joinGameRoom")
-    @SendTo("/morris/gameRoomJoined")
-    public void joinWaitRoom(Long roomId, Long userId) {
-        gameService.addUserToGameRoom(roomId, userId);
-    }
-
-    @MessageMapping("/leaveGameRoom")
-    @SendTo("/morris/gameRoomLeft")
-    public void leaveWaitRoom(Long roomId, Long userId) {
-        gameService.removeUserFromGameRoom(roomId, userId);
-    }
-
 }
