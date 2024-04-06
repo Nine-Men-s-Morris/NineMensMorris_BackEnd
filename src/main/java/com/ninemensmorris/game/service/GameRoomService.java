@@ -19,10 +19,8 @@ public class GameRoomService {
 
     public GameRoomResponseDto createGame(GameRoomRequestDto requestDto) {
 
-        // 현재 로그인한 사용자의 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUser = authentication.getName();
-
 
         GameRoom gameRoom = new GameRoom();
         gameRoom.setRoomTitle(requestDto.getRoomTitle());

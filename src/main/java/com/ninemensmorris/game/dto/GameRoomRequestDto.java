@@ -10,5 +10,4 @@ import lombok.Setter;
 public class GameRoomRequestDto {
 
     private String roomTitle;
-    private String host;
 }

@@ -1,6 +1,5 @@
 package com.ninemensmorris.auth.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ninemensmorris.user.domain.CustomOAuth2User;
 import com.ninemensmorris.user.domain.User;
 import com.ninemensmorris.user.repository.UserRepository;
@@ -14,8 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Optional;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @Slf4j
