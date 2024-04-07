@@ -1,12 +1,13 @@
 package com.ninemensmorris.game.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class GameRoomResponseDto {
+@NoArgsConstructor
+public class CreateGameRequestDto {
 
     private String roomTitle;
-    private String host;
 }
