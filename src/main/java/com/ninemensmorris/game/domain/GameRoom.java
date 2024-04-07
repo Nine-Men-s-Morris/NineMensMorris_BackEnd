@@ -1,5 +1,6 @@
 package com.ninemensmorris.game.domain;
 
+import com.ninemensmorris.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,4 +16,6 @@ public class GameRoom {
 
     private String roomTitle;
     private String host;
+    private String playerOneNickname;
+    private String playerTwoNickname;
 }

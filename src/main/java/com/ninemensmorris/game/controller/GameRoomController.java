@@ -7,10 +7,7 @@ import com.ninemensmorris.game.service.GameRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,5 +27,15 @@ public class GameRoomController {
     public ResponseEntity<CreateGameResponseDto> createGame(@RequestBody CreateGameRequestDto requestDto) {
         CreateGameResponseDto responseDto = gameRoomService.createGame(requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/api/joinGame/{roomId}")
+    public ResponseEntity<String> joinGame(@PathVariable Long roomId) {
+        boolean success = gameRoomService.joinGame(roomId);
+        if (success) {
+            return new ResponseEntity<>("Successfully joined the game.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to join the game.", HttpStatus.BAD_REQUEST);
+        }
     }
 }
