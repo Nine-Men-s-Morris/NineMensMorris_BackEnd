@@ -24,7 +24,8 @@ public class UserController {
     }
 
     @GetMapping("/api/rank")
-    public List<UserRankDto> getUserRanks() {
-        return userService.getUserRanks();
+    public ResponseEntity<List<UserRankDto>> getUserRanks() {
+        List<UserRankDto> userRanks = userService.getUserRanks();
+        return ResponseEntity.ok(userRanks);
     }
 }
