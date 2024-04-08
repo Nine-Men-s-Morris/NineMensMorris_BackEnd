@@ -72,7 +72,7 @@ public class GameRoomService {
             }
             gameRoomRepository.save(gameRoom);
 
-            simpMessagingTemplate.convertAndSend("/topic/game", "Player " + currentNickname + " joined the game in room " + gameRoom.getRoomTitle());
+            simpMessagingTemplate.convertAndSend("/topic/gameRoom", "Player " + currentNickname + " joined the game in room " + gameRoom.getRoomTitle());
             return true;
         }
         return false;
