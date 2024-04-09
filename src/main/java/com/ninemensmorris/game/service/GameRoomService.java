@@ -52,8 +52,6 @@ public class GameRoomService {
 
         GameRoom savedGameRoom = gameRoomRepository.save(gameRoom);
 
-        simpMessagingTemplate.convertAndSend("/topic/gameRoom", "New game room created: " + savedGameRoom.getRoomTitle());
-
         return CreateGameResponseDto.builder()
                 .roomTitle(savedGameRoom.getRoomTitle())
                 .host(savedGameRoom.getHost())
@@ -71,8 +69,6 @@ public class GameRoomService {
                 gameRoom.setPlayerTwoNickname(currentNickname);
             }
             gameRoomRepository.save(gameRoom);
-
-            simpMessagingTemplate.convertAndSend("/topic/gameRoom", "Player " + currentNickname + " joined the game in room " + gameRoom.getRoomTitle());
             return true;
         }
         return false;
