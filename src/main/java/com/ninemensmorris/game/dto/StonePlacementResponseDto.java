@@ -9,4 +9,5 @@ public class StonePlacementResponseDto {
 
     private boolean success;
     private String message;
+    private String[] board;
 }
