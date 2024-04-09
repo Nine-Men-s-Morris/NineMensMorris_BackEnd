@@ -8,23 +8,24 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class MorrisService {
 
-    private static final char PLAYER_ONE_STONE = '흑';
-    private static final char PLAYER_TWO_STONE = '백';
-    private static final char EMPTY_CELL = '-';
+    private static final String PLAYER_ONE_STONE = "BLACK";
+    private static final String PLAYER_TWO_STONE = "WHITE";
+    private static final String EMPTY_CELL = "EMPTY";
 
-    private final Map<Long, char[]> gameBoards = new HashMap<>();
+    private final Map<Long, String[]> gameBoards = new HashMap<>();
     private final Map<Long, Boolean> gamePhaseTwo = new HashMap<>();
-    private final Map<Long, Boolean> playerOneTurns = new HashMap<>();
+    private final Map<Long, String> playerStones = new HashMap<>();
 
-    private int countEmptyCells(char[] board) {
+    private int countEmptyCells(String[] board) {
         int count = 0;
-        for (char cell : board) {
-            if (cell == EMPTY_CELL) {
+        for (String cell : board) {
+            if (Objects.equals(cell, EMPTY_CELL)) {
                 count++;
             }
         }
@@ -32,64 +33,110 @@ public class MorrisService {
     }
 
     public void startGame(Long gameId) {
-        char[] board = new char[24];
+        String[] board = new String[24];
         for (int i = 0; i < 24; i++) {
             board[i] = EMPTY_CELL;
         }
         gameBoards.put(gameId, board);
         gamePhaseTwo.put(gameId, false);
-        playerOneTurns.put(gameId, true);
+        playerStones.put(gameId, PLAYER_ONE_STONE);
     }
 
     public StonePlacementResponseDto placeStone(StonePlacementRequestDto placementRequest) {
         Long gameId = placementRequest.getGameId();
-        char[] board = gameBoards.get(gameId);
+        String[] board = gameBoards.get(gameId);
         if (board == null) {
-            return new StonePlacementResponseDto(false, "해당 게임을 찾을 수 없습니다.");
+            return new StonePlacementResponseDto(false, "해당 게임을 찾을 수 없습니다.", null);
         }
 
         int initialPosition = placementRequest.getInitialPosition();
         int finalPosition = placementRequest.getFinalPosition();
 
         boolean phaseTwo = gamePhaseTwo.get(gameId);
-        if (!phaseTwo && initialPosition >= 0 && initialPosition < 24 && finalPosition == 99 && board[initialPosition] == EMPTY_CELL) {
-            return placeStonePhaseOne(gameId, initialPosition);
-        } else if (phaseTwo && initialPosition >= 0 && initialPosition < 24 && finalPosition >= 0 && finalPosition < 24 && board[initialPosition] != EMPTY_CELL && board[finalPosition] == EMPTY_CELL) {
-            return placeStonePhaseTwo(gameId, initialPosition, finalPosition);
+        String currentPlayerStone = playerStones.get(gameId);
+        if (!phaseTwo && initialPosition >= 0 && initialPosition < 24 && finalPosition == 99 && board[initialPosition].equals(EMPTY_CELL)) {
+            placeStonePhaseOne(gameId, initialPosition, currentPlayerStone);
+        } else if (phaseTwo && initialPosition >= 0 && initialPosition < 24 && finalPosition >= 0 && finalPosition < 24 && board[initialPosition].equals(currentPlayerStone) && board[finalPosition].equals(EMPTY_CELL)) {
+            placeStonePhaseTwo(gameId, initialPosition, finalPosition);
+        } else {
+            return new StonePlacementResponseDto(false, "유효하지 않은 위치입니다.", null);
         }
 
-        return new StonePlacementResponseDto(false, "유효하지 않은 위치입니다.");
+        playerStones.put(gameId, currentPlayerStone.equals(PLAYER_ONE_STONE) ? PLAYER_TWO_STONE : PLAYER_ONE_STONE);
+
+        return new StonePlacementResponseDto(true, "돌을 성공적으로 놓았습니다.", board);
     }
 
-    private StonePlacementResponseDto placeStonePhaseOne(Long gameId, int initialPosition) {
-        char[] board = gameBoards.get(gameId);
-        char stone = playerOneTurns.get(gameId) ? PLAYER_ONE_STONE : PLAYER_TWO_STONE;
-        board[initialPosition] = stone;
+    private void placeStonePhaseOne(Long gameId, int initialPosition, String currentPlayerStone) {
+        String[] board = gameBoards.get(gameId);
+        board[initialPosition] = currentPlayerStone;
 
         int emptyCellCount = countEmptyCells(board);
         if (emptyCellCount <= 15) {
             gamePhaseTwo.put(gameId, true);
         }
-
-        playerOneTurns.put(gameId, !playerOneTurns.get(gameId));
-
-        if (gamePhaseTwo.get(gameId)) {
-            return new StonePlacementResponseDto(true, "2페이즈로 전환되었습니다.");
-        } else {
-            return new StonePlacementResponseDto(true, "돌을 성공적으로 놓았습니다.");
-        }
     }
 
-    private StonePlacementResponseDto placeStonePhaseTwo(Long gameId, int initialPosition, int finalPosition) {
-        char[] board = gameBoards.get(gameId);
-        char stone = board[initialPosition];
+    private void placeStonePhaseTwo(Long gameId, int initialPosition, int finalPosition) {
+        String[] board = gameBoards.get(gameId);
+        String stone = board[initialPosition];
         board[initialPosition] = EMPTY_CELL;
         board[finalPosition] = stone;
-
-        return new StonePlacementResponseDto(true, "돌을 성공적으로 옮겼습니다.");
     }
 
     public StonePlacementResponseDto removeOpponentStone(RemoveOpponentStoneRequestDto requestDto) {
-        return new StonePlacementResponseDto(true, "돌을 성공적으로 제거하였습니다.");
+        Long gameId = requestDto.getGameId();
+        int removePosition = requestDto.getRemovePosition();
+
+        String[] board = gameBoards.get(gameId);
+
+        if (checkRemovalConditions(board)) {
+            board[removePosition] = EMPTY_CELL;
+            return new StonePlacementResponseDto(true, "돌을 성공적으로 제거하였습니다.", board);
+        } else {
+            return new StonePlacementResponseDto(false, "해당 위치에 있는 돌을 제거할 수 없습니다.", null);
+        }
+    }
+
+    private static final int[][] rowTriples = {
+            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11},
+            {12, 13, 14}, {15, 16, 17}, {18, 19, 20}, {21, 22, 23}
+    };
+
+    private static final int[][] columnTriples = {
+            {0, 9, 21}, {3, 10, 18}, {6, 11, 15}, {1, 4, 7},
+            {16, 19, 22}, {8, 12, 17}, {5, 13, 20}, {2, 14, 23}
+    };
+
+    private boolean checkRemovalConditions(String[] board) {
+        if (checkHorizontalThreeInARow(board)) {
+            return true;
+        }
+
+        if (checkVerticalThreeInARow(board)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean checkHorizontalThreeInARow(String[] board) {
+        for (int[] triple : rowTriples) {
+            String stone = board[triple[0]];
+            if (!stone.equals(EMPTY_CELL) && board[triple[1]].equals(stone) && board[triple[2]].equals(stone)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkVerticalThreeInARow(String[] board) {
+        for (int[] triple : columnTriples) {
+            String stone = board[triple[0]];
+            if (!stone.equals(EMPTY_CELL) && board[triple[1]].equals(stone) && board[triple[2]].equals(stone)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

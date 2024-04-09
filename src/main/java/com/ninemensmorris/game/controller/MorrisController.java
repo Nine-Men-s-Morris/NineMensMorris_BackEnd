@@ -22,7 +22,7 @@ public class MorrisController {
     @MessageMapping("/joinGame")
     public void joinGame(@Payload Long roomId) {
         // 클라이언트에게 게임 방 참가 메시지를 전송
-        simpMessagingTemplate.convertAndSend("/topic/gameRoom", "게임 방에 참가했습니다.");
+        simpMessagingTemplate.convertAndSend("/topic/gameRoom/" + roomId, "게임 방에 참가했습니다.");
 
         boolean success = gameRoomService.joinGame(roomId);
     }
@@ -30,18 +30,18 @@ public class MorrisController {
     @MessageMapping("/game/startGame")
     public void startNewGame(@Payload Long gameId) {
         morrisService.startGame(gameId);
-        simpMessagingTemplate.convertAndSend("/topic/game", "게임을 시작합니다.");
+        simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, "게임을 시작합니다.");
     }
 
     @MessageMapping("/game/placeStone")
-    public void placeStone(@Payload StonePlacementRequestDto placementRequest) {
-        StonePlacementResponseDto placementResponse = morrisService.placeStone(placementRequest);
-        simpMessagingTemplate.convertAndSend("/topic/game", placementResponse);
+    public void placeStone(@Payload StonePlacementRequestDto requestDto) {
+        StonePlacementResponseDto placementResponse = morrisService.placeStone(requestDto);
+        simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), placementResponse);
     }
 
     @MessageMapping("/game/removeOpponentStone")
     public void removeOpponentStone(@Payload RemoveOpponentStoneRequestDto requestDto) {
         StonePlacementResponseDto removalResponse = morrisService.removeOpponentStone(requestDto);
-        simpMessagingTemplate.convertAndSend("/topic/game", removalResponse);
+        simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), removalResponse);
     }
 }
