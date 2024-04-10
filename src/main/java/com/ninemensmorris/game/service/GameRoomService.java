@@ -65,6 +65,7 @@ public class GameRoomService {
         GameRoom savedGameRoom = gameRoomRepository.save(gameRoom);
 
         return CreateGameResponseDto.builder()
+                .roomId(savedGameRoom.getId())
                 .roomTitle(savedGameRoom.getRoomTitle())
                 .host(savedGameRoom.getHost())
                 .build();

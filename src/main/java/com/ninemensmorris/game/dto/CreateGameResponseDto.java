@@ -11,6 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CreateGameResponseDto {
 
+    private Long roomId;
     private String roomTitle;
     private String host;
 }
