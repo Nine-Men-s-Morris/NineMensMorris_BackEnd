@@ -33,24 +33,11 @@ public class GameRoomService {
     }
 
     private int calculatePlayerCount(GameRoom gameRoom) {
-        int playerCount = 0;
-        if (gameRoom.getPlayerOneNickname() != null) {
-            playerCount++;
-        }
+        int playerCount = 1;
         if (gameRoom.getPlayerTwoNickname() != null) {
             playerCount++;
         }
         return playerCount;
-    }
-
-    private int getHostScore(String host) {
-        User user = userRepository.findByNickname(host);
-        return user.getScore();
-    }
-
-    private String getHostImageUrl(String host) {
-        User user = userRepository.findByNickname(host);
-        return user.getImageUrl();
     }
 
     public List<GameRoomDto> getAllGameRooms() {
@@ -58,9 +45,7 @@ public class GameRoomService {
         return gameRooms.stream()
                 .map(gameRoom -> {
                     int playerCount = calculatePlayerCount(gameRoom);
-                    int hostScore = getHostScore(gameRoom.getHost());
-                    String hostImageUrl = getHostImageUrl(gameRoom.getHost());
-                    return new GameRoomDto(gameRoom, playerCount, hostScore, hostImageUrl);
+                    return new GameRoomDto(gameRoom, playerCount);
                 })
                 .collect(Collectors.toList());
     }
@@ -68,10 +53,13 @@ public class GameRoomService {
     public CreateGameResponseDto createGame(CreateGameRequestDto requestDto) {
 
         String currentNickname = currentUserNickname();
+        User hostUser = userRepository.findByNickname(currentNickname);
 
         GameRoom gameRoom = new GameRoom();
         gameRoom.setRoomTitle(requestDto.getRoomTitle());
         gameRoom.setHost(currentNickname);
+        gameRoom.setHostImageUrl(hostUser.getImageUrl());
+        gameRoom.setHostScore(hostUser.getScore());
         gameRoom.setPlayerOneNickname(currentNickname);
 
         GameRoom savedGameRoom = gameRoomRepository.save(gameRoom);

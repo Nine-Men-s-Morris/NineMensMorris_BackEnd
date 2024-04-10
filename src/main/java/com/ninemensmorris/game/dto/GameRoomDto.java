@@ -13,12 +13,12 @@ public class GameRoomDto {
     private final int playerCount;
     private final int hostScore;
 
-    public GameRoomDto(GameRoom gameRoom, int playerCount, int hostScore, String hostImageUrl) {
+    public GameRoomDto(GameRoom gameRoom, int playerCount) {
         this.roomId = gameRoom.getId();
         this.roomTitle = gameRoom.getRoomTitle();
         this.host = gameRoom.getHost();
-        this.hostImageUrl = hostImageUrl;
+        this.hostScore = gameRoom.getHostScore();
+        this.hostImageUrl = gameRoom.getHostImageUrl();
         this.playerCount = playerCount;
-        this.hostScore = hostScore;
     }
 }

@@ -16,6 +16,8 @@ public class GameRoom {
 
     private String roomTitle;
     private String host;
+    private int hostScore;
+    private String hostImageUrl;
     private String playerOneNickname;
     private String playerTwoNickname;
 }
