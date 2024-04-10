@@ -8,7 +8,6 @@ import com.ninemensmorris.game.repository.GameRoomRepository;
 import com.ninemensmorris.user.domain.User;
 import com.ninemensmorris.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ public class GameRoomService {
 
     private final GameRoomRepository gameRoomRepository;
     private final UserRepository userRepository;
-    private final SimpMessagingTemplate simpMessagingTemplate;
 
     private String currentUserNickname() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -34,10 +32,36 @@ public class GameRoomService {
         return currentUser.getNickname();
     }
 
+    private int calculatePlayerCount(GameRoom gameRoom) {
+        int playerCount = 0;
+        if (gameRoom.getPlayerOneNickname() != null) {
+            playerCount++;
+        }
+        if (gameRoom.getPlayerTwoNickname() != null) {
+            playerCount++;
+        }
+        return playerCount;
+    }
+
+    private int getHostScore(String host) {
+        User user = userRepository.findByNickname(host);
+        return user.getScore();
+    }
+
+    private String getHostImageUrl(String host) {
+        User user = userRepository.findByNickname(host);
+        return user.getImageUrl();
+    }
+
     public List<GameRoomDto> getAllGameRooms() {
         List<GameRoom> gameRooms = gameRoomRepository.findAll();
         return gameRooms.stream()
-                .map(GameRoomDto::new)
+                .map(gameRoom -> {
+                    int playerCount = calculatePlayerCount(gameRoom);
+                    int hostScore = getHostScore(gameRoom.getHost());
+                    String hostImageUrl = getHostImageUrl(gameRoom.getHost());
+                    return new GameRoomDto(gameRoom, playerCount, hostScore, hostImageUrl);
+                })
                 .collect(Collectors.toList());
     }
 
