@@ -14,9 +14,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,6 +33,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomOAuth2UserService oAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final LogoutHandler logoutHandler;
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,6 +48,15 @@ public class SecurityConfig {
                         .redirectionEndpoint(endpoint -> endpoint.baseUri("/api/oauth2/kakao"))
                         .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
+                )
+                .logout((logout) -> logout
+                        .logoutUrl("/api/auth/logout")
+                        .logoutSuccessUrl("http://localhost:8080")
+                        .addLogoutHandler(logoutHandler)
+                        .logoutSuccessHandler(((request, response, authentication) -> {
+                            SecurityContextHolder.clearContext();
+                        }))
+                        .deleteCookies("access_token")
                 )
                 .sessionManagement(
                         (session) -> session
