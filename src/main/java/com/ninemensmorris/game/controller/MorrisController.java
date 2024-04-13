@@ -1,6 +1,5 @@
 package com.ninemensmorris.game.controller;
 
-import com.ninemensmorris.game.domain.GameRoom;
 import com.ninemensmorris.game.dto.MorrisResultDto;
 import com.ninemensmorris.game.dto.RemoveOpponentStoneRequestDto;
 import com.ninemensmorris.game.dto.StonePlacementRequestDto;
@@ -25,7 +24,7 @@ public class MorrisController {
     @MessageMapping("/joinGame/{roomId}")
     public void joinGame(@DestinationVariable Long roomId) {
         gameRoomService.joinGame(roomId);
-        simpMessagingTemplate.convertAndSend("/topic/gameRoom/" + roomId, "게임 방에 참가했습니다.");
+        simpMessagingTemplate.convertAndSend("/topic/gameRoom/" + roomId, roomId + "번 게임 방에 참가했습니다.");
     }
 
     @MessageMapping("/game/startGame")
