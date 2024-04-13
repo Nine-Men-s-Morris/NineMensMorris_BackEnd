@@ -18,6 +18,6 @@ public class GameRoom {
     private String host;
     private int hostScore;
     private String hostImageUrl;
-    private String playerOneNickname;
-    private String playerTwoNickname;
+    private Long playerOneId;
+    private Long playerTwoId;
 }

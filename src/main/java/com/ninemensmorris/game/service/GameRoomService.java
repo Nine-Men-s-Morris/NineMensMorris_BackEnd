@@ -34,7 +34,7 @@ public class GameRoomService {
 
     private int calculatePlayerCount(GameRoom gameRoom) {
         int playerCount = 1;
-        if (gameRoom.getPlayerTwoNickname() != null) {
+        if (gameRoom.getPlayerTwoId() != null) {
             playerCount++;
         }
         return playerCount;
@@ -51,7 +51,8 @@ public class GameRoomService {
     }
 
     public CreateGameResponseDto createGame(CreateGameRequestDto requestDto) {
-
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserId = authentication.getName();
         String currentNickname = currentUserNickname();
         User hostUser = userRepository.findByNickname(currentNickname);
 
@@ -60,7 +61,7 @@ public class GameRoomService {
         gameRoom.setHost(currentNickname);
         gameRoom.setHostImageUrl(hostUser.getImageUrl());
         gameRoom.setHostScore(hostUser.getScore());
-        gameRoom.setPlayerOneNickname(currentNickname);
+        gameRoom.setPlayerOneId(Long.parseLong(currentUserId));
 
         GameRoom savedGameRoom = gameRoomRepository.save(gameRoom);
 
@@ -72,22 +73,18 @@ public class GameRoomService {
     }
 
     public boolean joinGame(Long roomId) {
-
-        String currentNickname = currentUserNickname();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserId = authentication.getName();
 
         Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(roomId);
         if (optionalGameRoom.isPresent()) {
             GameRoom gameRoom = optionalGameRoom.get();
-            if (gameRoom.getPlayerTwoNickname() == null) {
-                gameRoom.setPlayerTwoNickname(currentNickname);
+            if (gameRoom.getPlayerTwoId() == null) {
+                gameRoom.setPlayerTwoId(Long.parseLong(currentUserId));
             }
             gameRoomRepository.save(gameRoom);
             return true;
         }
         return false;
-    }
-
-    public void removeGame(Long roomId) {
-        gameRoomRepository.deleteById(roomId);
     }
 }
