@@ -90,4 +90,22 @@ public class GameRoomService {
         }
         return false;
     }
+
+    @Transactional
+    public boolean leaveGame(Long roomId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long currentUserId = Long.parseLong(authentication.getName());
+        GameRoom gameRoom = gameRoomRepository.findById(roomId).get();
+
+        if (currentUserId.equals(gameRoom.getPlayerOneId())) {
+            gameRoomRepository.delete(gameRoom);
+            return true;
+        } else if (currentUserId.equals(gameRoom.getPlayerTwoId())) {
+            gameRoom.setPlayerTwoId(null);
+            gameRoomRepository.save(gameRoom);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

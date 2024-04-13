@@ -38,4 +38,14 @@ public class GameRoomController {
             return new ResponseEntity<>("Failed to join the game.", HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PostMapping("/api/leaveGame/{roomId}")
+    public ResponseEntity<String> leaveGame(@PathVariable Long roomId) {
+        boolean success = gameRoomService.leaveGame(roomId);
+        if (success) {
+            return new ResponseEntity<>("Successfully left the game room.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to leave the game room.", HttpStatus.BAD_REQUEST);
+        }
+    }
 }
