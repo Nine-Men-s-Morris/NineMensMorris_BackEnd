@@ -1,8 +1,12 @@
 package com.ninemensmorris.game.service;
 
+import com.ninemensmorris.game.domain.GameRoom;
+import com.ninemensmorris.game.dto.MorrisResultDto;
 import com.ninemensmorris.game.dto.RemoveOpponentStoneRequestDto;
 import com.ninemensmorris.game.dto.StonePlacementRequestDto;
 import com.ninemensmorris.game.dto.StonePlacementResponseDto;
+import com.ninemensmorris.game.repository.GameRoomRepository;
+import com.ninemensmorris.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +17,9 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class MorrisService {
+
+    private final UserService userService;
+    private GameRoomRepository gameRoomRepository;
 
     private static final String PLAYER_ONE_STONE = "BLACK";
     private static final String PLAYER_TWO_STONE = "WHITE";
@@ -138,5 +145,91 @@ public class MorrisService {
             }
         }
         return false;
+    }
+
+    public StonePlacementResponseDto handleMorrisResult(MorrisResultDto morrisResultDto) {
+        Long gameId = morrisResultDto.getGameId();
+        Long winnerId = morrisResultDto.getWinnerId();
+        GameRoom gameRoom = gameRoomRepository.findById(gameId).get();
+
+        Long winner = determineWinner(gameId);
+        Long loserId = (winnerId.equals(gameRoom.getPlayerOneId())) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
+        if (winner != null) {
+            if (winner.equals(winnerId)) {
+                userService.increaseScore(winnerId);
+                userService.decreaseScore(loserId);
+                gameRoomRepository.delete(gameRoom);
+                return new StonePlacementResponseDto(true, "게임에서 승리하였습니다.", null);
+            } else {
+                userService.increaseScore(loserId);
+                userService.decreaseScore(winnerId);
+                gameRoomRepository.delete(gameRoom);
+                return new StonePlacementResponseDto(true, "게임에서 패배하였습니다.", null);
+            }
+        } else {
+        return new StonePlacementResponseDto(false, "게임이 아직 종료되지 않았습니다.(로직 오류)", null);
+        }
+    }
+
+    private Long determineWinner(Long gameId) {
+        GameRoom gameRoom = gameRoomRepository.findById(gameId).get();
+        String[] board = gameBoards.get(gameId);
+
+        boolean playerOneCanMove = checkPlayerCanMove(board, gameRoom, gameRoom.getPlayerOneId());
+        boolean playerTwoCanMove = checkPlayerCanMove(board, gameRoom, gameRoom.getPlayerTwoId());
+
+        if (!playerOneCanMove) {
+            return gameRoom.getPlayerTwoId();
+        } else if (!playerTwoCanMove) {
+            return gameRoom.getPlayerOneId();
+        }
+
+        int playerOneRemainStones = countRemainingStones(board, gameRoom, gameRoom.getPlayerOneId());
+        int playerTwoRemainStones = countRemainingStones(board, gameRoom, gameRoom.getPlayerTwoId());
+
+        if (playerOneRemainStones <= 2) {
+            return gameRoom.getPlayerTwoId();
+        } else if (playerTwoRemainStones <= 2) {
+            return gameRoom.getPlayerOneId();
+        }
+
+        return null;
+    }
+
+    private boolean checkPlayerCanMove(String[] board, GameRoom gameRoom, Long userId) {
+        String playerStone = (userId.equals(gameRoom.getPlayerOneId())) ? PLAYER_ONE_STONE : PLAYER_TWO_STONE;
+        int[][] adjacentIndexes = {
+                {1, 9}, {0, 2, 4}, {1, 14},
+                {4, 10}, {1, 3, 5, 7}, {4, 13},
+                {7, 11}, {4, 6, 8}, {7, 12},
+                {0, 10, 21}, {3, 9, 11, 18}, {6, 10, 15},
+                {8, 13, 17}, {5, 12, 14, 20}, {2, 13, 23},
+                {11, 16}, {15, 17, 19}, {12, 16},
+                {16, 18, 20, 22}, {13, 19}, {10, 21, 23},
+                {19, 22}, {9, 22}
+        };
+
+        for (int i = 0; i < board.length; i++) {
+            if (board[i].equals(playerStone)) {
+                for (int adjacentIndex : adjacentIndexes[i]) {
+                    if (board[adjacentIndex].equals(EMPTY_CELL)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private int countRemainingStones(String[] board, GameRoom gameRoom, Long userId) {
+        String playerStone = (userId.equals(gameRoom.getPlayerOneId())) ? PLAYER_ONE_STONE : PLAYER_TWO_STONE;
+        int stoneCount = 0;
+
+        for (String cell : board) {
+            if (cell.equals(playerStone)) {
+                stoneCount++;
+            }
+        }
+        return stoneCount;
     }
 }
