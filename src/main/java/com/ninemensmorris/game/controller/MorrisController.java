@@ -29,8 +29,8 @@ public class MorrisController {
 
     @MessageMapping("/game/startGame")
     public void startNewGame(@Payload Long gameId) {
-        morrisService.startGame(gameId);
-        simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, "게임을 시작합니다.");
+        StonePlacementResponseDto gameStartResponse = morrisService.startGame(gameId);
+        simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, gameStartResponse);
     }
 
     @MessageMapping("/game/placeStone")

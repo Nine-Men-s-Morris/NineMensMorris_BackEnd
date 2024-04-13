@@ -39,7 +39,7 @@ public class MorrisService {
         return count;
     }
 
-    public void startGame(Long gameId) {
+    public StonePlacementResponseDto startGame(Long gameId) {
         String[] board = new String[24];
         for (int i = 0; i < 24; i++) {
             board[i] = EMPTY_CELL;
@@ -47,6 +47,8 @@ public class MorrisService {
         gameBoards.put(gameId, board);
         gamePhaseTwo.put(gameId, false);
         playerStones.put(gameId, PLAYER_ONE_STONE);
+
+        return new StonePlacementResponseDto(true, "게임을 시작합니다.", board);
     }
 
     public StonePlacementResponseDto placeStone(StonePlacementRequestDto placementRequest) {
