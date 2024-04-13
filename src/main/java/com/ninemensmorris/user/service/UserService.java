@@ -46,4 +46,16 @@ public class UserService {
                 .map(UserRankDto::new)
                 .collect(Collectors.toList());
     }
+
+    public void increaseScore(Long userId) {
+        User user = userRepository.findByUserId(userId);
+        user.setScore(user.getScore() + 30);
+        userRepository.save(user);
+    }
+
+    public void decreaseScore(Long userId) {
+        User user = userRepository.findByUserId(userId);
+        user.setScore(user.getScore() - 20);
+        userRepository.save(user);
+    }
 }
