@@ -1,5 +1,7 @@
 package com.ninemensmorris.game.service;
 
+import com.ninemensmorris.common.exception.CustomException;
+import com.ninemensmorris.common.response.ErrorCode;
 import com.ninemensmorris.game.domain.GameRoom;
 import com.ninemensmorris.game.dto.CreateGameRequestDto;
 import com.ninemensmorris.game.dto.CreateGameResponseDto;
@@ -95,17 +97,21 @@ public class GameRoomService {
     public boolean leaveGame(Long roomId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long currentUserId = Long.parseLong(authentication.getName());
-        GameRoom gameRoom = gameRoomRepository.findById(roomId).get();
-
-        if (currentUserId.equals(gameRoom.getPlayerOneId())) {
-            gameRoomRepository.delete(gameRoom);
-            return true;
-        } else if (currentUserId.equals(gameRoom.getPlayerTwoId())) {
-            gameRoom.setPlayerTwoId(null);
-            gameRoomRepository.save(gameRoom);
-            return true;
+        Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(roomId);
+        if (optionalGameRoom.isPresent()) {
+            GameRoom gameRoom = optionalGameRoom.get();
+            if (currentUserId.equals(gameRoom.getPlayerOneId())) {
+                gameRoomRepository.delete(gameRoom);
+                return true;
+            } else if (currentUserId.equals(gameRoom.getPlayerTwoId())) {
+                gameRoom.setPlayerTwoId(null);
+                gameRoomRepository.save(gameRoom);
+                return true;
+            } else {
+                return false;
+            }
         } else {
-            return false;
+            throw new CustomException(ErrorCode.GAME_ROOM_NOT_FOUND);
         }
     }
 }

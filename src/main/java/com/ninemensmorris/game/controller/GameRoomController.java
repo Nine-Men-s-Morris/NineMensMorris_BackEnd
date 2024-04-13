@@ -1,5 +1,7 @@
 package com.ninemensmorris.game.controller;
 
+import com.ninemensmorris.common.exception.CustomException;
+import com.ninemensmorris.common.response.ErrorCode;
 import com.ninemensmorris.game.dto.CreateGameRequestDto;
 import com.ninemensmorris.game.dto.CreateGameResponseDto;
 import com.ninemensmorris.game.dto.GameRoomDto;
@@ -35,7 +37,7 @@ public class GameRoomController {
         if (success) {
             return new ResponseEntity<>("Successfully joined the game.", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Failed to join the game.", HttpStatus.BAD_REQUEST);
+            throw new CustomException(ErrorCode.FAILED_TO_JOIN_GAME);
         }
     }
 
@@ -45,7 +47,7 @@ public class GameRoomController {
         if (success) {
             return new ResponseEntity<>("Successfully left the game room.", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Failed to leave the game room.", HttpStatus.BAD_REQUEST);
+            throw new CustomException(ErrorCode.FAILED_TO_LEAVE_GAME_ROOM);
         }
     }
 }
