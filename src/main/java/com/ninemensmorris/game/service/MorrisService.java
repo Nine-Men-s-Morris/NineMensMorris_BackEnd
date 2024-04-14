@@ -1,10 +1,11 @@
 package com.ninemensmorris.game.service;
 
 import com.ninemensmorris.game.domain.GameRoom;
-import com.ninemensmorris.game.dto.MorrisResultDto;
-import com.ninemensmorris.game.dto.RemoveOpponentStoneRequestDto;
-import com.ninemensmorris.game.dto.StonePlacementRequestDto;
-import com.ninemensmorris.game.dto.StonePlacementResponseDto;
+import com.ninemensmorris.game.domain.MorrisStatus;
+import com.ninemensmorris.game.dto.Morris.MorrisResultDto;
+import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
+import com.ninemensmorris.game.dto.Morris.StonePlacementRequestDto;
+import com.ninemensmorris.game.dto.Morris.StonePlacementResponseDto;
 import com.ninemensmorris.game.repository.GameRoomRepository;
 import com.ninemensmorris.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,21 +14,28 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class MorrisService {
 
     private final UserService userService;
-    private GameRoomRepository gameRoomRepository;
+    private final GameRoomRepository gameRoomRepository;
 
     private static final String PLAYER_ONE_STONE = "BLACK";
     private static final String PLAYER_TWO_STONE = "WHITE";
     private static final String EMPTY_CELL = "EMPTY";
 
     private final Map<Long, String[]> gameBoards = new HashMap<>();
-    private final Map<Long, Boolean> gamePhaseTwo = new HashMap<>();
+    private final Map<Long, Integer> gamePhases = new HashMap<>();
     private final Map<Long, String> playerStones = new HashMap<>();
+    private final Map<Long, GameRoom> gameRooms = new HashMap<>();
+    private final Map<Long, Integer> hostAddableStones = new HashMap<>();
+    private final Map<Long, Integer> guestAddableStones = new HashMap<>();
+    private final Map<Long, Integer> hostTotal = new HashMap<>();
+    private final Map<Long, Integer> guestTotal = new HashMap<>();
+    private final Map<Long, Long> currentTurns = new HashMap<>();
 
     private int countEmptyCells(String[] board) {
         int count = 0;
@@ -40,50 +48,104 @@ public class MorrisService {
     }
 
     public StonePlacementResponseDto startGame(Long gameId) {
+        Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(gameId);
+        GameRoom gameRoom = optionalGameRoom.get();
+
         String[] board = new String[24];
         for (int i = 0; i < 24; i++) {
             board[i] = EMPTY_CELL;
         }
         gameBoards.put(gameId, board);
-        gamePhaseTwo.put(gameId, false);
+        gamePhases.put(gameId, 1);
         playerStones.put(gameId, PLAYER_ONE_STONE);
+        gameRooms.put(gameId, gameRoom);
+        hostAddableStones.put(gameId, 9);
+        guestAddableStones.put(gameId, 9);
+        hostTotal.put(gameId, 9);
+        guestTotal.put(gameId, 9);
 
-        return new StonePlacementResponseDto(true, "게임을 시작합니다.", board);
+        return StonePlacementResponseDto.builder()
+                .message("게임을 시작합니다.")
+                .board(board)
+                .hostId(gameRoom.getPlayerOneId())
+                .guestId(gameRoom.getPlayerTwoId())
+                .currentTurn(gameRoom.getPlayerOneId())
+                .hostAddable(9)
+                .guestAddable(9)
+                .hostTotal(9)
+                .guestTotal(9)
+                .phase(1)
+                .isRemoving(false)
+                .status(MorrisStatus.Status.PLAYING)
+                .winner(null)
+                .loser(null)
+                .build();
     }
 
     public StonePlacementResponseDto placeStone(StonePlacementRequestDto placementRequest) {
         Long gameId = placementRequest.getGameId();
         String[] board = gameBoards.get(gameId);
-        if (board == null) {
-            return new StonePlacementResponseDto(false, "해당 게임을 찾을 수 없습니다.", null);
-        }
+        GameRoom gameRoom = gameRooms.get(gameId);
+        int currentPhase = gamePhases.get(gameId);
 
         int initialPosition = placementRequest.getInitialPosition();
         int finalPosition = placementRequest.getFinalPosition();
 
-        boolean phaseTwo = gamePhaseTwo.get(gameId);
         String currentPlayerStone = playerStones.get(gameId);
-        if (!phaseTwo && initialPosition >= 0 && initialPosition < 24 && finalPosition == 99 && board[initialPosition].equals(EMPTY_CELL)) {
+
+        if (currentPhase == 1 && initialPosition >= 0 && initialPosition < 24 && finalPosition == 99 && board[initialPosition].equals(EMPTY_CELL)) {
             placeStonePhaseOne(gameId, initialPosition, currentPlayerStone);
-        } else if (phaseTwo && initialPosition >= 0 && initialPosition < 24 && finalPosition >= 0 && finalPosition < 24 && board[initialPosition].equals(currentPlayerStone) && board[finalPosition].equals(EMPTY_CELL)) {
+            decreaseAddableStones(gameId);
+        } else if (currentPhase == 2 && initialPosition >= 0 && initialPosition < 24 && finalPosition >= 0 && finalPosition < 24 && board[initialPosition].equals(currentPlayerStone) && board[finalPosition].equals(EMPTY_CELL)) {
             placeStonePhaseTwo(gameId, initialPosition, finalPosition);
         } else {
-            return new StonePlacementResponseDto(false, "유효하지 않은 위치입니다.", null);
+            return StonePlacementResponseDto.builder()
+                    .message("유효하지 않은 위치입니다.")
+                    .build();
         }
 
-        playerStones.put(gameId, currentPlayerStone.equals(PLAYER_ONE_STONE) ? PLAYER_TWO_STONE : PLAYER_ONE_STONE);
+        Long nextTurn = (gameRoom.getPlayerOneId().equals(currentTurns.get(gameId))) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
+        currentTurns.put(gameId, nextTurn);
 
-        return new StonePlacementResponseDto(true, "돌을 성공적으로 놓았습니다.", board);
+        return StonePlacementResponseDto.builder()
+                .message("돌을 성공적으로 놓았습니다.")
+                .board(board)
+                .hostId(gameRoom.getPlayerOneId())
+                .guestId(gameRoom.getPlayerTwoId())
+                .currentTurn(nextTurn)
+                .hostAddable(hostAddableStones.get(gameId))
+                .guestAddable(guestAddableStones.get(gameId))
+                .hostTotal(hostTotal.get(gameId))
+                .guestTotal(guestTotal.get(gameId))
+                .phase(gamePhases.get(gameId))
+                .isRemoving(false)
+                .status(MorrisStatus.Status.PLAYING)
+                .winner(null)
+                .loser(null)
+                .build();
+    }
+
+    private void decreaseAddableStones(Long gameId) {
+        String currentPlayerStone = playerStones.get(gameId);
+        int hostStonesLeft = hostAddableStones.get(gameId);
+        int guestStonesLeft = guestAddableStones.get(gameId);
+
+        if (currentPlayerStone.equals(PLAYER_ONE_STONE)) {
+            hostStonesLeft--;
+            hostAddableStones.put(gameId, hostStonesLeft);
+        } else if (currentPlayerStone.equals(PLAYER_TWO_STONE)) {
+            guestStonesLeft--;
+            guestAddableStones.put(gameId, guestStonesLeft);
+        }
+
+        if (hostStonesLeft == 0 && guestStonesLeft == 0) {
+            gamePhases.put(gameId, 2);
+        }
     }
 
     private void placeStonePhaseOne(Long gameId, int initialPosition, String currentPlayerStone) {
         String[] board = gameBoards.get(gameId);
         board[initialPosition] = currentPlayerStone;
-
-        int emptyCellCount = countEmptyCells(board);
-        if (emptyCellCount <= 15) {
-            gamePhaseTwo.put(gameId, true);
-        }
     }
 
     private void placeStonePhaseTwo(Long gameId, int initialPosition, int finalPosition) {
