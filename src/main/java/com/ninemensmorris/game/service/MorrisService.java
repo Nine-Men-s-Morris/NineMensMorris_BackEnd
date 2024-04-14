@@ -10,6 +10,7 @@ import com.ninemensmorris.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public class MorrisService {
     private final Map<Long, Integer> guestTotal = new HashMap<>();
     private final Map<Long, Long> currentTurns = new HashMap<>();
 
+    // 두 명이 되는 순간 바로 실행해야함
     public StonePlacementResponseDto startGame(Long gameId) {
         Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(gameId);
         GameRoom gameRoom = optionalGameRoom.get();
@@ -140,6 +142,13 @@ public class MorrisService {
 
         GameRoom gameRoom = gameRooms.get(gameId);
         String[] board = gameBoards.get(gameId);
+
+        // 제거하려는 말이 연속된 3행 또는 3열인 경우 제거할 수 없음
+        if (checkRowOrColumnTriples(gameId, removePosition)) {
+            return StonePlacementResponseDto.builder()
+                    .message("3행 또는 3열에 속한 돌은 제거할 수 없습니다.")
+                    .build();
+        }
 
         if (checkRemovalConditions(board)) {
             board[removePosition] = EMPTY_CELL;
@@ -303,6 +312,33 @@ public class MorrisService {
             }
         }
         return false;
+    }
+
+    private boolean checkRowOrColumnTriples(Long gameId, int removePosition) {
+        String currentPlayerStone = playerStones.get(gameId);
+        String[] board = gameBoards.get(gameId);
+
+        for (int[] triple : rowTriples) {
+            if (Arrays.stream(triple).anyMatch(p -> p == removePosition) && isAllOpponentStones(board, triple, currentPlayerStone)) {
+                return true;
+            }
+        }
+
+        for (int[] triple : columnTriples) {
+            if (Arrays.stream(triple).anyMatch(p -> p == removePosition) && isAllOpponentStones(board, triple, currentPlayerStone)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isAllOpponentStones(String[] board, int[] positions, String currentPlayerStone) {
+        for (int position : positions) {
+            if (board[position].equals(currentPlayerStone)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
