@@ -78,15 +78,12 @@ public class GameRoomService {
     }
 
     @Transactional
-    public boolean joinGame(Long roomId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserId = authentication.getName();
-
+    public boolean joinGame(Long roomId, Long userId) {
         Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(roomId);
         if (optionalGameRoom.isPresent()) {
             GameRoom gameRoom = optionalGameRoom.get();
             if (gameRoom.getPlayerTwoId() == null) {
-                gameRoom.setPlayerTwoId(Long.parseLong(currentUserId));
+                gameRoom.setPlayerTwoId(userId);
             }
             gameRoomRepository.save(gameRoom);
             return true;
