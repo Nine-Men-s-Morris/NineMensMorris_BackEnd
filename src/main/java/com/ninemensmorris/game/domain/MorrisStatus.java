@@ -3,13 +3,13 @@ package com.ninemensmorris.game.domain;
 public class MorrisStatus {
 
     public enum Status {
-        RUNNING, ENDED
+        WAITING, PLAYING, FINISHED
     }
 
     private Status currentStatus;
 
     public MorrisStatus() {
-        this.currentStatus = Status.RUNNING;
+        this.currentStatus = Status.WAITING;
     }
 
     public void setStatus(Status status) {
@@ -22,10 +22,10 @@ public class MorrisStatus {
 
     public void printStatus() {
         switch (this.currentStatus) {
-            case RUNNING:
+            case PLAYING:
                 System.out.println("게임이 진행 중입니다.");
                 break;
-            case ENDED:
+            case FINISHED:
                 System.out.println("게임이 종료되었습니다.");
                 break;
         }
