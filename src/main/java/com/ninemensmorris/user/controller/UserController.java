@@ -1,6 +1,5 @@
 package com.ninemensmorris.user.controller;
 
-import com.ninemensmorris.game.dto.GameRoomDto;
 import com.ninemensmorris.user.dto.UserRankDto;
 import com.ninemensmorris.user.dto.UserResponseDto;
 import com.ninemensmorris.user.service.UserService;

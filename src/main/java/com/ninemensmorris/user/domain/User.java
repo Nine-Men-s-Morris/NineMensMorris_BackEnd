@@ -1,7 +1,8 @@
 package com.ninemensmorris.user.domain;
 
-import com.ninemensmorris.game.domain.GameRoom;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.*;
 
 @Entity

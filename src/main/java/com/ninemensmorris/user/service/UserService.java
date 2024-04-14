@@ -1,6 +1,5 @@
 package com.ninemensmorris.user.service;
 
-import com.ninemensmorris.game.dto.GameRoomDto;
 import com.ninemensmorris.user.domain.User;
 import com.ninemensmorris.user.dto.UserRankDto;
 import com.ninemensmorris.user.dto.UserResponseDto;
