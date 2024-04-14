@@ -1,6 +1,5 @@
 package com.ninemensmorris.game.controller;
 
-import com.ninemensmorris.game.dto.Morris.MorrisResultDto;
 import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
 import com.ninemensmorris.game.dto.Morris.StonePlacementRequestDto;
 import com.ninemensmorris.game.dto.Morris.StonePlacementResponseDto;
@@ -45,9 +44,9 @@ public class MorrisController {
         simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), removalResponse);
     }
 
-    @MessageMapping("/game/handleMorrisResult")
-    public void handleMorrisResult(@Payload MorrisResultDto morrisResult) {
-        StonePlacementResponseDto response = morrisService.handleMorrisResult(morrisResult);
-        simpMessagingTemplate.convertAndSend("/topic/game/" + morrisResult.getGameId(), response);
-    }
+//    @MessageMapping("/game/handleMorrisResult")
+//    public void handleMorrisResult(@Payload Long gameId) {
+//        StonePlacementResponseDto response = morrisService.handleMorrisResult(gameId);
+//        simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, response);
+//    }
 }
