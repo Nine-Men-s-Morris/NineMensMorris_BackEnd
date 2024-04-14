@@ -32,8 +32,8 @@ public class GameRoomController {
     }
 
     @PostMapping("/api/joinGame/{roomId}")
-    public ResponseEntity<String> joinGame(@PathVariable Long roomId) {
-        boolean success = gameRoomService.joinGame(roomId);
+    public ResponseEntity<String> joinGame(@PathVariable Long roomId, @RequestBody Long userId) {
+        boolean success = gameRoomService.joinGame(roomId, userId);
         if (success) {
             return new ResponseEntity<>("Successfully joined the game.", HttpStatus.OK);
         } else {
