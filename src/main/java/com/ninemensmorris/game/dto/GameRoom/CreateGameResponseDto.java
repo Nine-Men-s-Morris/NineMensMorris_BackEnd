@@ -1,4 +1,4 @@
-package com.ninemensmorris.game.dto;
+package com.ninemensmorris.game.dto.GameRoom;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

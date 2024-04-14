@@ -1,9 +1,9 @@
 package com.ninemensmorris.game.controller;
 
-import com.ninemensmorris.game.dto.MorrisResultDto;
-import com.ninemensmorris.game.dto.RemoveOpponentStoneRequestDto;
-import com.ninemensmorris.game.dto.StonePlacementRequestDto;
-import com.ninemensmorris.game.dto.StonePlacementResponseDto;
+import com.ninemensmorris.game.dto.Morris.MorrisResultDto;
+import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
+import com.ninemensmorris.game.dto.Morris.StonePlacementRequestDto;
+import com.ninemensmorris.game.dto.Morris.StonePlacementResponseDto;
 import com.ninemensmorris.game.service.GameRoomService;
 import com.ninemensmorris.game.service.MorrisService;
 import lombok.RequiredArgsConstructor;
