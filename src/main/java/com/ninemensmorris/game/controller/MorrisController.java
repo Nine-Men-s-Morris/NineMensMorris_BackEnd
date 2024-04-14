@@ -21,7 +21,7 @@ public class MorrisController {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @MessageMapping("/joinGame/{roomId}")
-    public void joinGame(Long roomId, Long userId) {
+    public void joinGame(@DestinationVariable Long roomId, Long userId) {
         boolean gameStarted = gameRoomService.joinGame(roomId, userId);
         if (gameStarted) {
             startGame(roomId);
