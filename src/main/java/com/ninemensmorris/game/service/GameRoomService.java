@@ -77,6 +77,7 @@ public class GameRoomService {
                 .build();
     }
 
+    @Transactional
     public boolean joinGame(Long roomId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserId = authentication.getName();
