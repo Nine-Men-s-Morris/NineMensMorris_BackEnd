@@ -1,5 +1,7 @@
 package com.ninemensmorris.game.service;
 
+import com.ninemensmorris.common.exception.CustomException;
+import com.ninemensmorris.common.response.ErrorCode;
 import com.ninemensmorris.game.domain.GameRoom;
 import com.ninemensmorris.game.domain.MorrisStatus;
 import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
@@ -36,15 +38,12 @@ public class MorrisService {
     private final Map<Long, Integer> guestTotal = new HashMap<>();
     private final Map<Long, Long> currentTurns = new HashMap<>();
 
-    // 두 명이 되는 순간 바로 실행해야함
     public StonePlacementResponseDto startGame(Long gameId) {
         Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(gameId);
-        GameRoom gameRoom = optionalGameRoom.get();
+        GameRoom gameRoom = optionalGameRoom.orElseThrow(() -> new CustomException(ErrorCode.GAME_ROOM_NOT_FOUND));
 
         String[] board = new String[24];
-        for (int i = 0; i < 24; i++) {
-            board[i] = EMPTY_CELL;
-        }
+        Arrays.fill(board, EMPTY_CELL);
         gameBoards.put(gameId, board);
         gamePhases.put(gameId, 1);
         playerStones.put(gameId, PLAYER_ONE_STONE);
@@ -53,6 +52,7 @@ public class MorrisService {
         guestAddableStones.put(gameId, 9);
         hostTotal.put(gameId, 9);
         guestTotal.put(gameId, 9);
+        currentTurns.put(gameId, gameRoom.getPlayerOneId());
 
         return StonePlacementResponseDto.builder()
                 .message("게임을 시작합니다.")
@@ -83,10 +83,11 @@ public class MorrisService {
 
         String currentPlayerStone = playerStones.get(gameId);
 
-        if (currentPhase == 1 && initialPosition >= 0 && initialPosition < 24 && finalPosition == 99 && board[initialPosition].equals(EMPTY_CELL)) {
+        if (currentPhase == 1) {
             placeStonePhaseOne(gameId, initialPosition, currentPlayerStone);
             decreaseAddableStones(gameId);
-        } else if (currentPhase == 2 && initialPosition >= 0 && initialPosition < 24 && finalPosition >= 0 && finalPosition < 24 && board[initialPosition].equals(currentPlayerStone) && board[finalPosition].equals(EMPTY_CELL)) {
+            switchTurn(gameId, gameRoom);
+        } else if (currentPhase == 2) {
             placeStonePhaseTwo(gameId, initialPosition, finalPosition);
             if (checkRemovalConditions(board)) {
                 return StonePlacementResponseDto.builder()
@@ -108,10 +109,6 @@ public class MorrisService {
             } else {
                 switchTurn(gameId, gameRoom);
             }
-        } else {
-            return StonePlacementResponseDto.builder()
-                    .message("유효하지 않은 위치입니다.")
-                    .build();
         }
 
         if (checkEndGameConditions(gameId, board, gameRoom)) {
@@ -144,7 +141,7 @@ public class MorrisService {
         String[] board = gameBoards.get(gameId);
 
         // 제거하려는 말이 연속된 3행 또는 3열인 경우 제거할 수 없음
-        if (checkRowOrColumnTriples(gameId, removePosition)) {
+        if (checkRowOrColumnTriples(gameId, board, removePosition)) {
             return StonePlacementResponseDto.builder()
                     .message("3행 또는 3열에 속한 돌은 제거할 수 없습니다.")
                     .build();
@@ -283,40 +280,23 @@ public class MorrisService {
     };
 
     private boolean checkRemovalConditions(String[] board) {
-        if (checkHorizontalThreeInARow(board)) {
-            return true;
-        }
-
-        if (checkVerticalThreeInARow(board)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean checkHorizontalThreeInARow(String[] board) {
         for (int[] triple : rowTriples) {
-            String stone = board[triple[0]];
-            if (!stone.equals(EMPTY_CELL) && board[triple[1]].equals(stone) && board[triple[2]].equals(stone)) {
+            if (board[triple[0]].equals(board[triple[1]]) && board[triple[1]].equals(board[triple[2]]) && !board[triple[0]].equals(EMPTY_CELL)) {
                 return true;
             }
         }
-        return false;
-    }
 
-    private boolean checkVerticalThreeInARow(String[] board) {
         for (int[] triple : columnTriples) {
-            String stone = board[triple[0]];
-            if (!stone.equals(EMPTY_CELL) && board[triple[1]].equals(stone) && board[triple[2]].equals(stone)) {
+            if (board[triple[0]].equals(board[triple[1]]) && board[triple[1]].equals(board[triple[2]]) && !board[triple[0]].equals(EMPTY_CELL)) {
                 return true;
             }
         }
+
         return false;
     }
 
-    private boolean checkRowOrColumnTriples(Long gameId, int removePosition) {
+    private boolean checkRowOrColumnTriples(Long gameId, String[] board, int removePosition) {
         String currentPlayerStone = playerStones.get(gameId);
-        String[] board = gameBoards.get(gameId);
 
         for (int[] triple : rowTriples) {
             if (Arrays.stream(triple).anyMatch(p -> p == removePosition) && isAllOpponentStones(board, triple, currentPlayerStone)) {
