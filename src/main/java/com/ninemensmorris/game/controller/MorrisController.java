@@ -47,4 +47,10 @@ public class MorrisController {
         MorrisResponse<StonePlacementResponseDto> removalResponse = morrisService.removeOpponentStone(requestDto);
         simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), removalResponse);
     }
+
+    @MessageMapping("/game/withdraw")
+    public void withdraw(Long gameId, Long userId) {
+        MorrisResponse<StonePlacementResponseDto> withdrawResponse = morrisService.withdraw(gameId, userId);
+        simpMessagingTemplate.convertAndSend("/topic/game" + gameId, withdrawResponse);
+    }
 }

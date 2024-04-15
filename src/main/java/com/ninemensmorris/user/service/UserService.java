@@ -46,15 +46,15 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public void increaseScore(Long userId) {
+    public void increaseScore(Long userId, int score) {
         User user = userRepository.findByUserId(userId);
-        user.setScore(user.getScore() + 30);
+        user.setScore(user.getScore() + score);
         userRepository.save(user);
     }
 
-    public void decreaseScore(Long userId) {
+    public void decreaseScore(Long userId, int score) {
         User user = userRepository.findByUserId(userId);
-        user.setScore(user.getScore() - 20);
+        user.setScore(user.getScore() - score);
         userRepository.save(user);
     }
 }

@@ -254,11 +254,11 @@ public class MorrisService {
             Long loserId = (winnerId.equals(gameRoom.getPlayerOneId())) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
 
             if (winnerId.equals(gameRoom.getPlayerOneId())) {
-                userService.increaseScore(winnerId);
-                userService.decreaseScore(loserId);
+                userService.increaseScore(winnerId, 30);
+                userService.decreaseScore(loserId, 20);
             } else {
-                userService.increaseScore(loserId);
-                userService.decreaseScore(winnerId);
+                userService.increaseScore(loserId, 30);
+                userService.decreaseScore(winnerId, 20);
             }
 
             gameRoomRepository.delete(gameRoom);
@@ -283,8 +283,38 @@ public class MorrisService {
 
         } else {
             return MorrisResponse.response(ResponseType.GAME_OVER, MorrisResponseCode.NO_WINNER, null);
-    }
         }
+    }
+
+    public MorrisResponse<StonePlacementResponseDto> withdraw (Long gameId, Long userId) {
+        GameRoom gameRoom = gameRooms.get(gameId);
+        Long winnerId = gameRoom.getPlayerOneId().equals(userId) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
+        Long loserId = userId;
+
+        userService.increaseScore(winnerId, 20);
+        userService.decreaseScore(loserId, 20);
+
+        gameRoomRepository.delete(gameRoom);
+
+        StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
+                .board(null)
+                .hostId(gameRoom.getPlayerOneId())
+                .guestId(gameRoom.getPlayerTwoId())
+                .currentTurn(currentTurns.get(gameId))
+                .hostAddable(hostAddableStones.get(gameId))
+                .guestAddable(guestAddableStones.get(gameId))
+                .hostTotal(hostTotal.get(gameId))
+                .guestTotal(guestTotal.get(gameId))
+                .phase(gamePhases.get(gameId))
+                .isRemoving(false)
+                .status(MorrisStatus.Status.FINISHED)
+                .winner(winnerId)
+                .loser(loserId)
+                .build();
+
+        return MorrisResponse.response(ResponseType.GAME_OVER, MorrisResponseCode.GAME_OVER, responseDto);
+    }
+
 
     private void placeStonePhaseOne(Long gameId, int initialPosition, String currentPlayerStone) {
         String[] board = gameBoards.get(gameId);
