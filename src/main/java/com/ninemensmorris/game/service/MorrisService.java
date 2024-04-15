@@ -132,7 +132,7 @@ public class MorrisService {
         }
 
         if (currentPhase == 2 && checkEndGameConditions(gameId, board, gameRoom)) {
-            return handleMorrisResult(gameId, userId);
+            return handleMorrisResult(gameId);
         }
 
         return StonePlacementResponseDto.builder()
@@ -188,7 +188,7 @@ public class MorrisService {
         }
 
         if (checkEndGameConditions(gameId, board, gameRoom)) {
-            return handleMorrisResult(gameId, userId);
+            return handleMorrisResult(gameId);
         }
 
         switchTurn(gameId, gameRoom);
@@ -211,7 +211,7 @@ public class MorrisService {
                 .build();
     }
 
-    public StonePlacementResponseDto handleMorrisResult(Long gameId, Long userId) {
+    public StonePlacementResponseDto handleMorrisResult(Long gameId) {
         String[] board = gameBoards.get(gameId);
         GameRoom gameRoom = gameRooms.get(gameId);
         Long winnerId = determineWinner(gameId);
@@ -230,7 +230,7 @@ public class MorrisService {
             gameRoomRepository.delete(gameRoom);
 
             return StonePlacementResponseDto.builder()
-                    .message((userId.equals(winnerId)) ? "승리했습니다!" : "패배했습니다...")
+                    .message("게임이 종료되었습니다.")
                     .board(board)
                     .hostId(gameRoom.getPlayerOneId())
                     .guestId(gameRoom.getPlayerTwoId())

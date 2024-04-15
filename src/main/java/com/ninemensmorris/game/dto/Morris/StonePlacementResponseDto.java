@@ -16,10 +16,10 @@ public class StonePlacementResponseDto {
     private Long guestId;
     private Long currentTurn;
     private int hostAddable;
-    private int guestAddable; // 1페이즈에 올려둘 수 있는 돌
+    private int guestAddable;
     private int hostTotal;
     private int guestTotal;
-    private int phase; // 1 or 2
+    private int phase;
     private boolean isRemoving;
     private MorrisStatus.Status status;
     private Long winner;
