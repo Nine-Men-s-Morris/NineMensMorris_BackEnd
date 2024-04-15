@@ -287,11 +287,12 @@ public class MorrisService {
         }
     }
 
-    public MorrisResponse<StonePlacementResponseDto> withdraw (WithdrawRequestDto requestDto) {
+    public MorrisResponse<StonePlacementResponseDto> withdraw(WithdrawRequestDto requestDto) {
         Long gameId = requestDto.getGameId();
         Long userId = requestDto.getUserId();
         GameRoom gameRoom = gameRooms.get(gameId);
 
+        String[] board = gameBoards.get(gameId);
         Long winnerId = gameRoom.getPlayerOneId().equals(userId) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
         Long loserId = userId;
 
@@ -301,7 +302,7 @@ public class MorrisService {
         gameRoomRepository.delete(gameRoom);
 
         StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
-                .board(null)
+                .board(board)
                 .hostId(gameRoom.getPlayerOneId())
                 .guestId(gameRoom.getPlayerTwoId())
                 .currentTurn(currentTurns.get(gameId))
