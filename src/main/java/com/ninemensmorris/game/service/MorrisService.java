@@ -74,6 +74,7 @@ public class MorrisService {
 
     public StonePlacementResponseDto placeStone(StonePlacementRequestDto placementRequest) {
         Long gameId = placementRequest.getGameId();
+        Long userId = placementRequest.getUserId();
         String[] board = gameBoards.get(gameId);
         GameRoom gameRoom = gameRooms.get(gameId);
         int currentPhase = gamePhases.get(gameId);
@@ -131,7 +132,7 @@ public class MorrisService {
         }
 
         if (currentPhase == 2 && checkEndGameConditions(gameId, board, gameRoom)) {
-            return handleMorrisResult(gameId);
+            return handleMorrisResult(gameId, userId);
         }
 
         return StonePlacementResponseDto.builder()
@@ -154,6 +155,7 @@ public class MorrisService {
 
     public StonePlacementResponseDto removeOpponentStone(RemoveOpponentStoneRequestDto requestDto) {
         Long gameId = requestDto.getGameId();
+        Long userId = requestDto.getUserId();
         int removePosition = requestDto.getRemovePosition();
 
         GameRoom gameRoom = gameRooms.get(gameId);
@@ -186,7 +188,7 @@ public class MorrisService {
         }
 
         if (checkEndGameConditions(gameId, board, gameRoom)) {
-            return handleMorrisResult(gameId);
+            return handleMorrisResult(gameId, userId);
         }
 
         switchTurn(gameId, gameRoom);
@@ -209,7 +211,7 @@ public class MorrisService {
                 .build();
     }
 
-    public StonePlacementResponseDto handleMorrisResult(Long gameId) {
+    public StonePlacementResponseDto handleMorrisResult(Long gameId, Long userId) {
         String[] board = gameBoards.get(gameId);
         GameRoom gameRoom = gameRooms.get(gameId);
         Long winnerId = determineWinner(gameId);
@@ -228,7 +230,7 @@ public class MorrisService {
             gameRoomRepository.delete(gameRoom);
 
             return StonePlacementResponseDto.builder()
-                    .message("게임에서 " + ((winnerId.equals(gameRoom.getPlayerOneId())) ? "승리" : "패배") + "하였습니다.")
+                    .message((userId.equals(winnerId)) ? "승리했습니다!" : "패배했습니다...")
                     .board(board)
                     .hostId(gameRoom.getPlayerOneId())
                     .guestId(gameRoom.getPlayerTwoId())
@@ -240,9 +242,10 @@ public class MorrisService {
                     .phase(gamePhases.get(gameId))
                     .isRemoving(false)
                     .status(MorrisStatus.Status.FINISHED)
-                    .winner((winnerId.equals(gameRoom.getPlayerOneId())) ? winnerId : loserId)
-                    .loser((winnerId.equals(gameRoom.getPlayerOneId())) ? loserId : winnerId)
+                    .winner(winnerId)
+                    .loser(loserId)
                     .build();
+
         } else {
             return StonePlacementResponseDto.builder()
                     .message("승리자가 없습니다. or 게임 승패 판단 로직 에러")
