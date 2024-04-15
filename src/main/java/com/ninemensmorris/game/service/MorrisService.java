@@ -10,6 +10,7 @@ import com.ninemensmorris.game.domain.MorrisStatus;
 import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
 import com.ninemensmorris.game.dto.Morris.StonePlacementRequestDto;
 import com.ninemensmorris.game.dto.Morris.StonePlacementResponseDto;
+import com.ninemensmorris.game.dto.Morris.WithdrawRequestDto;
 import com.ninemensmorris.game.repository.GameRoomRepository;
 import com.ninemensmorris.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -286,8 +287,11 @@ public class MorrisService {
         }
     }
 
-    public MorrisResponse<StonePlacementResponseDto> withdraw (Long gameId, Long userId) {
+    public MorrisResponse<StonePlacementResponseDto> withdraw (WithdrawRequestDto requestDto) {
+        Long gameId = requestDto.getGameId();
+        Long userId = requestDto.getUserId();
         GameRoom gameRoom = gameRooms.get(gameId);
+
         Long winnerId = gameRoom.getPlayerOneId().equals(userId) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
         Long loserId = userId;
 

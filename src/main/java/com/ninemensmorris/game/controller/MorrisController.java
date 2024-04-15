@@ -4,12 +4,12 @@ import com.ninemensmorris.common.response.MorrisResponse;
 import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
 import com.ninemensmorris.game.dto.Morris.StonePlacementRequestDto;
 import com.ninemensmorris.game.dto.Morris.StonePlacementResponseDto;
+import com.ninemensmorris.game.dto.Morris.WithdrawRequestDto;
 import com.ninemensmorris.game.service.GameRoomService;
 import com.ninemensmorris.game.service.MorrisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -49,8 +49,8 @@ public class MorrisController {
     }
 
     @MessageMapping("/game/withdraw")
-    public void withdraw(Long gameId, Long userId) {
-        MorrisResponse<StonePlacementResponseDto> withdrawResponse = morrisService.withdraw(gameId, userId);
-        simpMessagingTemplate.convertAndSend("/topic/game" + gameId, withdrawResponse);
+    public void withdraw(WithdrawRequestDto requestDto) {
+        MorrisResponse<StonePlacementResponseDto> withdrawResponse = morrisService.withdraw(requestDto);
+        simpMessagingTemplate.convertAndSend("/topic/game" + requestDto.getGameId(), withdrawResponse);
     }
 }
