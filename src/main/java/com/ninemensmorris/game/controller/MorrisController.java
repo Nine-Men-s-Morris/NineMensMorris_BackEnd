@@ -51,6 +51,6 @@ public class MorrisController {
     @MessageMapping("/game/withdraw")
     public void withdraw(WithdrawRequestDto requestDto) {
         MorrisResponse<StonePlacementResponseDto> withdrawResponse = morrisService.withdraw(requestDto);
-        simpMessagingTemplate.convertAndSend("/topic/game" + requestDto.getGameId(), withdrawResponse);
+        simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), withdrawResponse);
     }
 }
