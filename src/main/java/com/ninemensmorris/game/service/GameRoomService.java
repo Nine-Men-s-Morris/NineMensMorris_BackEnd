@@ -83,7 +83,7 @@ public class GameRoomService {
         if (optionalGameRoom.isPresent()) {
             GameRoom gameRoom = optionalGameRoom.get();
             if (gameRoom.getPlayerOneId().equals(userId)) {
-                return false;
+                throw new CustomException(ErrorCode.GAME_ALREADY_JOIN);
             } else if (gameRoom.getPlayerTwoId() == null) {
                 gameRoom.setPlayerTwoId(userId);
                 gameRoomRepository.save(gameRoom);
@@ -91,8 +91,9 @@ public class GameRoomService {
             } else {
                 return false;
             }
+        } else {
+            throw new CustomException(ErrorCode.GAME_ROOM_NOT_FOUND);
         }
-        return false;
     }
 
     @Transactional
