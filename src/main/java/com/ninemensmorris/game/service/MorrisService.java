@@ -2,6 +2,8 @@ package com.ninemensmorris.game.service;
 
 import com.ninemensmorris.common.exception.CustomException;
 import com.ninemensmorris.common.response.ErrorCode;
+import com.ninemensmorris.common.response.MorrisResponse;
+import com.ninemensmorris.common.response.MorrisResponse.ResponseType;
 import com.ninemensmorris.game.domain.GameRoom;
 import com.ninemensmorris.game.domain.MorrisStatus;
 import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
@@ -38,7 +40,7 @@ public class MorrisService {
     private final Map<Long, Integer> guestTotal = new HashMap<>();
     private final Map<Long, Long> currentTurns = new HashMap<>();
 
-    public StonePlacementResponseDto startGame(Long gameId) {
+    public MorrisResponse<StonePlacementResponseDto> startGame(Long gameId) {
         Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(gameId);
         GameRoom gameRoom = optionalGameRoom.orElseThrow(() -> new CustomException(ErrorCode.GAME_ROOM_NOT_FOUND));
 
@@ -54,7 +56,7 @@ public class MorrisService {
         guestTotal.put(gameId, 9);
         currentTurns.put(gameId, gameRoom.getPlayerOneId());
 
-        return StonePlacementResponseDto.builder()
+        StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
                 .message("게임을 시작합니다.")
                 .board(board)
                 .hostId(gameRoom.getPlayerOneId())
@@ -70,6 +72,8 @@ public class MorrisService {
                 .winner(null)
                 .loser(null)
                 .build();
+
+        return MorrisResponse.response(ResponseType.GAME_START, responseDto);
     }
 
     public StonePlacementResponseDto placeStone(StonePlacementRequestDto placementRequest) {
