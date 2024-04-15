@@ -86,34 +86,34 @@ public class MorrisService {
         if (currentPhase == 1) {
             placeStonePhaseOne(gameId, initialPosition, currentPlayerStone);
             decreaseAddableStones(gameId);
-            switchTurn(gameId, gameRoom);
         } else if (currentPhase == 2) {
             placeStonePhaseTwo(gameId, initialPosition, finalPosition);
-            if (checkRemovalConditions(board)) {
-                return StonePlacementResponseDto.builder()
-                        .message("3개 연속입니다. 돌을 제거하세요.")
-                        .board(board)
-                        .hostId(gameRoom.getPlayerOneId())
-                        .guestId(gameRoom.getPlayerTwoId())
-                        .currentTurn(currentTurns.get(gameId))
-                        .hostAddable(hostAddableStones.get(gameId))
-                        .guestAddable(guestAddableStones.get(gameId))
-                        .hostTotal(hostTotal.get(gameId))
-                        .guestTotal(guestTotal.get(gameId))
-                        .phase(gamePhases.get(gameId))
-                        .isRemoving(true)
-                        .status(MorrisStatus.Status.PLAYING)
-                        .winner(null)
-                        .loser(null)
-                        .build();
-            } else {
-                switchTurn(gameId, gameRoom);
-            }
+        }
+
+        if (checkRemovalConditions(board)) {
+            return StonePlacementResponseDto.builder()
+                    .message("3개 연속입니다. 돌을 제거하세요.")
+                    .board(board)
+                    .hostId(gameRoom.getPlayerOneId())
+                    .guestId(gameRoom.getPlayerTwoId())
+                    .currentTurn(currentTurns.get(gameId))
+                    .hostAddable(hostAddableStones.get(gameId))
+                    .guestAddable(guestAddableStones.get(gameId))
+                    .hostTotal(hostTotal.get(gameId))
+                    .guestTotal(guestTotal.get(gameId))
+                    .phase(gamePhases.get(gameId))
+                    .isRemoving(true)
+                    .status(MorrisStatus.Status.PLAYING)
+                    .winner(null)
+                    .loser(null)
+                    .build();
         }
 
         if (checkEndGameConditions(gameId, board, gameRoom)) {
             return handleMorrisResult(gameId);
         }
+
+        switchTurn(gameId, gameRoom);
 
         return StonePlacementResponseDto.builder()
                 .message("돌을 성공적으로 놓았습니다.")
