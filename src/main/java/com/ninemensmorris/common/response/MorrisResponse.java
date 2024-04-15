@@ -9,11 +9,13 @@ import lombok.*;
 public class MorrisResponse<T> {
 
     private ResponseType type;
+    private String message;
     private T data;
 
-    public static <T> MorrisResponse<T> response(ResponseType type, T data) {
+    public static <T> MorrisResponse<T> response(ResponseType type, MorrisResponseCode morrisResponseCode, T data) {
         return MorrisResponse.<T>builder()
                 .type(type)
+                .message(morrisResponseCode.getMessage())
                 .data(data)
                 .build();
     }

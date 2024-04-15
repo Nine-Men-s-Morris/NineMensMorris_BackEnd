@@ -4,6 +4,7 @@ import com.ninemensmorris.common.exception.CustomException;
 import com.ninemensmorris.common.response.ErrorCode;
 import com.ninemensmorris.common.response.MorrisResponse;
 import com.ninemensmorris.common.response.MorrisResponse.ResponseType;
+import com.ninemensmorris.common.response.MorrisResponseCode;
 import com.ninemensmorris.game.domain.GameRoom;
 import com.ninemensmorris.game.domain.MorrisStatus;
 import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
@@ -57,7 +58,6 @@ public class MorrisService {
         currentTurns.put(gameId, gameRoom.getPlayerOneId());
 
         StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
-                .message("게임을 시작합니다.")
                 .board(board)
                 .hostId(gameRoom.getPlayerOneId())
                 .guestId(gameRoom.getPlayerTwoId())
@@ -73,10 +73,10 @@ public class MorrisService {
                 .loser(null)
                 .build();
 
-        return MorrisResponse.response(ResponseType.GAME_START, responseDto);
+        return MorrisResponse.response(ResponseType.GAME_START, MorrisResponseCode.GAME_START, responseDto);
     }
 
-    public StonePlacementResponseDto placeStone(StonePlacementRequestDto placementRequest) {
+    public MorrisResponse<StonePlacementResponseDto> placeStone(StonePlacementRequestDto placementRequest) {
         Long gameId = placementRequest.getGameId();
         String[] board = gameBoards.get(gameId);
         GameRoom gameRoom = gameRooms.get(gameId);
@@ -91,8 +91,7 @@ public class MorrisService {
             placeStonePhaseOne(gameId, initialPosition, currentPlayerStone);
             decreaseAddableStones(gameId);
             if (checkRemovalConditions(gameId, board, initialPosition)) {
-                return StonePlacementResponseDto.builder()
-                        .message("3개 연속입니다. 돌을 제거하세요.")
+                StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
                         .board(board)
                         .hostId(gameRoom.getPlayerOneId())
                         .guestId(gameRoom.getPlayerTwoId())
@@ -107,14 +106,15 @@ public class MorrisService {
                         .winner(null)
                         .loser(null)
                         .build();
+
+                return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.CANNOT_REMOVE, responseDto);
             } else {
                 switchTurn(gameId, gameRoom);
             }
         } else if (currentPhase == 2) {
             placeStonePhaseTwo(gameId, initialPosition, finalPosition);
             if (checkRemovalConditions(gameId, board, finalPosition)) {
-                return StonePlacementResponseDto.builder()
-                        .message("3개 연속입니다. 돌을 제거하세요.")
+                StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
                         .board(board)
                         .hostId(gameRoom.getPlayerOneId())
                         .guestId(gameRoom.getPlayerTwoId())
@@ -129,6 +129,8 @@ public class MorrisService {
                         .winner(null)
                         .loser(null)
                         .build();
+
+                return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.CANNOT_REMOVE, responseDto);
             } else {
                 switchTurn(gameId, gameRoom);
             }
@@ -138,8 +140,7 @@ public class MorrisService {
             return handleMorrisResult(gameId);
         }
 
-        return StonePlacementResponseDto.builder()
-                .message("돌을 성공적으로 놓았습니다.")
+        StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
                 .board(board)
                 .hostId(gameRoom.getPlayerOneId())
                 .guestId(gameRoom.getPlayerTwoId())
@@ -154,9 +155,11 @@ public class MorrisService {
                 .winner(null)
                 .loser(null)
                 .build();
+
+        return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.STONE_PLACEMENT_SUCCESS, responseDto);
     }
 
-    public StonePlacementResponseDto removeOpponentStone(RemoveOpponentStoneRequestDto requestDto) {
+    public MorrisResponse<StonePlacementResponseDto> removeOpponentStone(RemoveOpponentStoneRequestDto requestDto) {
         Long gameId = requestDto.getGameId();
         int removePosition = requestDto.getRemovePosition();
 
@@ -166,8 +169,7 @@ public class MorrisService {
         if (removePosition == 99) {
             switchTurn(gameId, gameRoom);
 
-            return StonePlacementResponseDto.builder()
-                    .message("턴이 변경되었습니다.")
+            StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
                     .board(board)
                     .hostId(gameRoom.getPlayerOneId())
                     .guestId(gameRoom.getPlayerTwoId())
@@ -182,12 +184,13 @@ public class MorrisService {
                     .winner(null)
                     .loser(null)
                     .build();
+
+            return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.TURN_CHANGE, responseDto);
         }
 
         // 제거하려는 말이 연속된 3행 또는 3열인 경우 제거할 수 없음
         if (checkRowOrColumnTriples(gameId, board, removePosition)) {
-            return StonePlacementResponseDto.builder()
-                    .message("3행 또는 3열에 속한 돌은 제거할 수 없습니다.")
+            StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
                     .board(board)
                     .hostId(gameRoom.getPlayerOneId())
                     .guestId(gameRoom.getPlayerTwoId())
@@ -202,6 +205,8 @@ public class MorrisService {
                     .winner(null)
                     .loser(null)
                     .build();
+
+            return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.CANNOT_REMOVE_ROW_COLUMN, responseDto);
         }
 
         board[removePosition] = EMPTY_CELL;
@@ -221,8 +226,7 @@ public class MorrisService {
 
         switchTurn(gameId, gameRoom);
 
-        return StonePlacementResponseDto.builder()
-                .message("돌을 성공적으로 제거하였습니다.")
+        StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
                 .board(board)
                 .hostId(gameRoom.getPlayerOneId())
                 .guestId(gameRoom.getPlayerTwoId())
@@ -237,9 +241,11 @@ public class MorrisService {
                 .winner(null)
                 .loser(null)
                 .build();
+
+        return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.STONE_REMOVAL_SUCCESS, responseDto);
     }
 
-    public StonePlacementResponseDto handleMorrisResult(Long gameId) {
+    public MorrisResponse<StonePlacementResponseDto> handleMorrisResult(Long gameId) {
         String[] board = gameBoards.get(gameId);
         GameRoom gameRoom = gameRooms.get(gameId);
         Long winnerId = determineWinner(gameId);
@@ -257,8 +263,7 @@ public class MorrisService {
 
             gameRoomRepository.delete(gameRoom);
 
-            return StonePlacementResponseDto.builder()
-                    .message("게임이 종료되었습니다.")
+            StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
                     .board(board)
                     .hostId(gameRoom.getPlayerOneId())
                     .guestId(gameRoom.getPlayerTwoId())
@@ -274,10 +279,10 @@ public class MorrisService {
                     .loser(loserId)
                     .build();
 
+            return MorrisResponse.response(ResponseType.GAME_OVER, MorrisResponseCode.GAME_OVER, responseDto);
+
         } else {
-            return StonePlacementResponseDto.builder()
-                    .message("승리자가 없습니다. or 게임 승패 판단 로직 에러")
-                    .build();
+            return MorrisResponse.response(ResponseType.GAME_OVER, MorrisResponseCode.NO_WINNER, null);
         }
     }
 

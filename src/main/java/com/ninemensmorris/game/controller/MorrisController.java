@@ -38,19 +38,13 @@ public class MorrisController {
 
     @MessageMapping("/game/placeStone")
     public void placeStone(StonePlacementRequestDto requestDto) {
-        StonePlacementResponseDto placementResponse = morrisService.placeStone(requestDto);
+        MorrisResponse<StonePlacementResponseDto> placementResponse = morrisService.placeStone(requestDto);
         simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), placementResponse);
     }
 
     @MessageMapping("/game/removeOpponentStone")
     public void removeOpponentStone(RemoveOpponentStoneRequestDto requestDto) {
-        StonePlacementResponseDto removalResponse = morrisService.removeOpponentStone(requestDto);
+        MorrisResponse<StonePlacementResponseDto> removalResponse = morrisService.removeOpponentStone(requestDto);
         simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), removalResponse);
     }
-
-//    @MessageMapping("/game/handleMorrisResult")
-//    public void handleMorrisResult(@Payload Long gameId) {
-//        StonePlacementResponseDto response = morrisService.handleMorrisResult(gameId);
-//        simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, response);
-//    }
 }
