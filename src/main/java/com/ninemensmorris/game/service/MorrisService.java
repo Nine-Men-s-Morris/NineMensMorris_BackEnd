@@ -283,8 +283,8 @@ public class MorrisService {
 
         } else {
             return MorrisResponse.response(ResponseType.GAME_OVER, MorrisResponseCode.NO_WINNER, null);
-        }
     }
+        }
 
     private void placeStonePhaseOne(Long gameId, int initialPosition, String currentPlayerStone) {
         String[] board = gameBoards.get(gameId);
@@ -437,9 +437,9 @@ public class MorrisService {
                 {7, 11}, {4, 6, 8}, {7, 12},
                 {0, 10, 21}, {3, 9, 11, 18}, {6, 10, 15},
                 {8, 13, 17}, {5, 12, 14, 20}, {2, 13, 23},
-                {11, 16}, {15, 17, 19}, {12, 16},
-                {16, 18, 20, 22}, {13, 19}, {10, 21, 23},
-                {19, 22}, {9, 22}
+                {11, 16}, {15, 17, 19}, {12, 16}, {10, 19},
+                {16, 18, 20, 22}, {13, 19}, {9, 22}, {19, 21, 23},
+                {14, 22}
         };
 
         for (int i = 0; i < board.length; i++) {
