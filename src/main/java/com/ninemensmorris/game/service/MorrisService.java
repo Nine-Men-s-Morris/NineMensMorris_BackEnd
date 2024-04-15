@@ -90,7 +90,7 @@ public class MorrisService {
             placeStonePhaseTwo(gameId, initialPosition, finalPosition);
         }
 
-        if (checkRemovalConditions(board)) {
+        if (checkRemovalConditions(gameId, board, finalPosition)) {
             return StonePlacementResponseDto.builder()
                     .message("3개 연속입니다. 돌을 제거하세요.")
                     .board(board)
@@ -147,7 +147,7 @@ public class MorrisService {
                     .build();
         }
 
-        if (checkRemovalConditions(board)) {
+        if (checkRemovalConditions(gameId, board, removePosition)) {
             board[removePosition] = EMPTY_CELL;
 
             String currentPlayerStone = playerStones.get(gameId);
@@ -279,22 +279,28 @@ public class MorrisService {
             {16, 19, 22}, {8, 12, 17}, {5, 13, 20}, {2, 14, 23}
     };
 
-    private boolean checkRemovalConditions(String[] board) {
+    private boolean checkRemovalConditions(Long gameId, String[] board, int position) {
         for (int[] triple : rowTriples) {
-            if (board[triple[0]].equals(board[triple[1]]) && board[triple[1]].equals(board[triple[2]]) && !board[triple[0]].equals(EMPTY_CELL)) {
-                return true;
+            if (Arrays.stream(triple).anyMatch(p -> p == position)) {
+                String currentPlayerStone = playerStones.get(gameId);
+                if (board[triple[0]].equals(currentPlayerStone) && board[triple[1]].equals(currentPlayerStone) && board[triple[2]].equals(currentPlayerStone)) {
+                    return true;
+                }
             }
         }
 
         for (int[] triple : columnTriples) {
-            if (board[triple[0]].equals(board[triple[1]]) && board[triple[1]].equals(board[triple[2]]) && !board[triple[0]].equals(EMPTY_CELL)) {
-                return true;
+            if (Arrays.stream(triple).anyMatch(p -> p == position)) {
+                String currentPlayerStone = playerStones.get(gameId);
+                if (board[triple[0]].equals(currentPlayerStone) && board[triple[1]].equals(currentPlayerStone) && board[triple[2]].equals(currentPlayerStone)) {
+                    return true;
+                }
             }
         }
 
         return false;
     }
-
+    
     private boolean checkRowOrColumnTriples(Long gameId, String[] board, int removePosition) {
         String currentPlayerStone = playerStones.get(gameId);
 
