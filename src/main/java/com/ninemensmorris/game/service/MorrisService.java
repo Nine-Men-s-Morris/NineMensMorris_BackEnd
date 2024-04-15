@@ -180,11 +180,11 @@ public class MorrisService {
 
         String currentPlayerStone = playerStones.get(gameId);
         if (currentPlayerStone.equals(PLAYER_ONE_STONE)) {
-            int hostTotalStones = hostTotal.get(gameId);
-            hostTotal.put(gameId, hostTotalStones - 1);
-        } else if (currentPlayerStone.equals(PLAYER_TWO_STONE)) {
             int guestTotalStones = guestTotal.get(gameId);
             guestTotal.put(gameId, guestTotalStones - 1);
+        } else if (currentPlayerStone.equals(PLAYER_TWO_STONE)) {
+            int hostTotalStones = hostTotal.get(gameId);
+            hostTotal.put(gameId, hostTotalStones - 1);
         }
 
         if (checkEndGameConditions(gameId, board, gameRoom)) {
