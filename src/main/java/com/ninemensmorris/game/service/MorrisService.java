@@ -42,7 +42,7 @@ public class MorrisService {
         Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(gameId);
         GameRoom gameRoom = optionalGameRoom.orElseThrow(() -> new CustomException(ErrorCode.GAME_ROOM_NOT_FOUND));
 
-        String[] board = new String[25];
+        String[] board = new String[24];
         Arrays.fill(board, EMPTY_CELL);
         gameBoards.put(gameId, board);
         gamePhases.put(gameId, 1);
@@ -86,7 +86,7 @@ public class MorrisService {
         if (currentPhase == 1) {
             placeStonePhaseOne(gameId, initialPosition, currentPlayerStone);
             decreaseAddableStones(gameId);
-            if (checkRemovalConditions(gameId, board, finalPosition)) {
+            if (checkRemovalConditions(gameId, board, initialPosition)) {
                 return StonePlacementResponseDto.builder()
                         .message("3개 연속입니다. 돌을 제거하세요.")
                         .board(board)
@@ -130,7 +130,7 @@ public class MorrisService {
             }
         }
 
-        if (checkEndGameConditions(gameId, board, gameRoom)) {
+        if (currentPhase == 2 && checkEndGameConditions(gameId, board, gameRoom)) {
             return handleMorrisResult(gameId);
         }
 
