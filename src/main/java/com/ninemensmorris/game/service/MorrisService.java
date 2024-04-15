@@ -300,7 +300,8 @@ public class MorrisService {
 
         return false;
     }
-    
+
+    // 제거하려는 돌이 3연속 행, 열에 위치하여있는지 확인 (true 반환일 경우 제거할 수 없음)
     private boolean checkRowOrColumnTriples(Long gameId, String[] board, int removePosition) {
         String currentPlayerStone = playerStones.get(gameId);
 
@@ -315,16 +316,16 @@ public class MorrisService {
                 return true;
             }
         }
-        return false;
+        return false; // 제거 가능
     }
 
-    private boolean isAllOpponentStones(String[] board, int[] positions, String currentPlayerStone) {
-        for (int position : positions) {
-            if (board[position].equals(currentPlayerStone)) {
-                return false;
+    private boolean isAllOpponentStones(String[] board, int[] triples, String currentPlayerStone) {
+        for (int position : triples) {
+            if (board[position].equals(currentPlayerStone) || board[position].equals(EMPTY_CELL)) {
+                return false; // 제거 가능
             }
         }
-        return true;
+        return true; // 제거 불가능
     }
 
     /**
