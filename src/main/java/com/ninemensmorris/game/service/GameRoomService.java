@@ -82,11 +82,15 @@ public class GameRoomService {
         Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(roomId);
         if (optionalGameRoom.isPresent()) {
             GameRoom gameRoom = optionalGameRoom.get();
-            if (gameRoom.getPlayerTwoId() == null) {
+            if (gameRoom.getPlayerOneId().equals(userId)) {
+                return false;
+            } else if (gameRoom.getPlayerTwoId() == null) {
                 gameRoom.setPlayerTwoId(userId);
+                gameRoomRepository.save(gameRoom);
+                return true;
+            } else {
+                return false;
             }
-            gameRoomRepository.save(gameRoom);
-            return true;
         }
         return false;
     }
