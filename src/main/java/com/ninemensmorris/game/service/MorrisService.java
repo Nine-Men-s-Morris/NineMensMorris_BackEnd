@@ -74,7 +74,6 @@ public class MorrisService {
 
     public StonePlacementResponseDto placeStone(StonePlacementRequestDto placementRequest) {
         Long gameId = placementRequest.getGameId();
-        Long userId = placementRequest.getUserId();
         String[] board = gameBoards.get(gameId);
         GameRoom gameRoom = gameRooms.get(gameId);
         int currentPhase = gamePhases.get(gameId);
@@ -155,7 +154,6 @@ public class MorrisService {
 
     public StonePlacementResponseDto removeOpponentStone(RemoveOpponentStoneRequestDto requestDto) {
         Long gameId = requestDto.getGameId();
-        Long userId = requestDto.getUserId();
         int removePosition = requestDto.getRemovePosition();
 
         GameRoom gameRoom = gameRooms.get(gameId);
