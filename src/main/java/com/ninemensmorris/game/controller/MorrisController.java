@@ -1,5 +1,6 @@
 package com.ninemensmorris.game.controller;
 
+import com.ninemensmorris.common.response.MorrisResponse;
 import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
 import com.ninemensmorris.game.dto.Morris.StonePlacementRequestDto;
 import com.ninemensmorris.game.dto.Morris.StonePlacementResponseDto;
@@ -31,7 +32,7 @@ public class MorrisController {
 
     @MessageMapping("/game/startGame")
     public void startGame(Long gameId) {
-        StonePlacementResponseDto gameStartResponse = morrisService.startGame(gameId);
+        MorrisResponse<StonePlacementResponseDto> gameStartResponse = morrisService.startGame(gameId);
         simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, gameStartResponse);
     }
 
