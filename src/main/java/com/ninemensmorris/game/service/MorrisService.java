@@ -166,45 +166,39 @@ public class MorrisService {
                     .build();
         }
 
-        if (checkRemovalConditions(gameId, board, removePosition)) {
-            board[removePosition] = EMPTY_CELL;
+        board[removePosition] = EMPTY_CELL;
 
-            String currentPlayerStone = playerStones.get(gameId);
-            if (currentPlayerStone.equals(PLAYER_ONE_STONE)) {
-                int hostTotalStones = hostTotal.get(gameId);
-                hostTotal.put(gameId, hostTotalStones - 1);
-            } else if (currentPlayerStone.equals(PLAYER_TWO_STONE)) {
-                int guestTotalStones = guestTotal.get(gameId);
-                guestTotal.put(gameId, guestTotalStones - 1);
-            }
-
-            if (checkEndGameConditions(gameId, board, gameRoom)) {
-                return handleMorrisResult(gameId);
-            }
-
-            switchTurn(gameId, gameRoom);
-
-            return StonePlacementResponseDto.builder()
-                    .message("돌을 성공적으로 제거하였습니다.")
-                    .board(board)
-                    .hostId(gameRoom.getPlayerOneId())
-                    .guestId(gameRoom.getPlayerTwoId())
-                    .currentTurn(currentTurns.get(gameId))
-                    .hostAddable(hostAddableStones.get(gameId))
-                    .guestAddable(guestAddableStones.get(gameId))
-                    .hostTotal(hostTotal.get(gameId))
-                    .guestTotal(guestTotal.get(gameId))
-                    .phase(gamePhases.get(gameId))
-                    .isRemoving(false)
-                    .status(MorrisStatus.Status.PLAYING)
-                    .winner(null)
-                    .loser(null)
-                    .build();
-        } else {
-            return StonePlacementResponseDto.builder()
-                    .message("돌이 제거할 수 없는 위치에 있습니다.")
-                    .build();
+        String currentPlayerStone = playerStones.get(gameId);
+        if (currentPlayerStone.equals(PLAYER_ONE_STONE)) {
+            int hostTotalStones = hostTotal.get(gameId);
+            hostTotal.put(gameId, hostTotalStones - 1);
+        } else if (currentPlayerStone.equals(PLAYER_TWO_STONE)) {
+            int guestTotalStones = guestTotal.get(gameId);
+            guestTotal.put(gameId, guestTotalStones - 1);
         }
+
+        if (checkEndGameConditions(gameId, board, gameRoom)) {
+            return handleMorrisResult(gameId);
+        }
+
+        switchTurn(gameId, gameRoom);
+
+        return StonePlacementResponseDto.builder()
+                .message("돌을 성공적으로 제거하였습니다.")
+                .board(board)
+                .hostId(gameRoom.getPlayerOneId())
+                .guestId(gameRoom.getPlayerTwoId())
+                .currentTurn(currentTurns.get(gameId))
+                .hostAddable(hostAddableStones.get(gameId))
+                .guestAddable(guestAddableStones.get(gameId))
+                .hostTotal(hostTotal.get(gameId))
+                .guestTotal(guestTotal.get(gameId))
+                .phase(gamePhases.get(gameId))
+                .isRemoving(false)
+                .status(MorrisStatus.Status.PLAYING)
+                .winner(null)
+                .loser(null)
+                .build();
     }
 
     public StonePlacementResponseDto handleMorrisResult(Long gameId) {
