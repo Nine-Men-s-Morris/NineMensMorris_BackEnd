@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class StonePlacementResponseDto {
 
-    private String message;
     private String[] board;
     private Long hostId;
     private Long guestId;
