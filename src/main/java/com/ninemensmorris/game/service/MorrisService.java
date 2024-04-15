@@ -164,6 +164,19 @@ public class MorrisService {
 
             return StonePlacementResponseDto.builder()
                     .message("턴이 변경되었습니다.")
+                    .board(board)
+                    .hostId(gameRoom.getPlayerOneId())
+                    .guestId(gameRoom.getPlayerTwoId())
+                    .currentTurn(currentTurns.get(gameId))
+                    .hostAddable(hostAddableStones.get(gameId))
+                    .guestAddable(guestAddableStones.get(gameId))
+                    .hostTotal(hostTotal.get(gameId))
+                    .guestTotal(guestTotal.get(gameId))
+                    .phase(gamePhases.get(gameId))
+                    .isRemoving(false)
+                    .status(MorrisStatus.Status.PLAYING)
+                    .winner(null)
+                    .loser(null)
                     .build();
         }
 
@@ -171,6 +184,19 @@ public class MorrisService {
         if (checkRowOrColumnTriples(gameId, board, removePosition)) {
             return StonePlacementResponseDto.builder()
                     .message("3행 또는 3열에 속한 돌은 제거할 수 없습니다.")
+                    .board(board)
+                    .hostId(gameRoom.getPlayerOneId())
+                    .guestId(gameRoom.getPlayerTwoId())
+                    .currentTurn(currentTurns.get(gameId))
+                    .hostAddable(hostAddableStones.get(gameId))
+                    .guestAddable(guestAddableStones.get(gameId))
+                    .hostTotal(hostTotal.get(gameId))
+                    .guestTotal(guestTotal.get(gameId))
+                    .phase(gamePhases.get(gameId))
+                    .isRemoving(false)
+                    .status(MorrisStatus.Status.PLAYING)
+                    .winner(null)
+                    .loser(null)
                     .build();
         }
 
