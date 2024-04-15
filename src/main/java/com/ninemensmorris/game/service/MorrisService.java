@@ -306,16 +306,21 @@ public class MorrisService {
         String currentPlayerStone = playerStones.get(gameId);
 
         for (int[] triple : rowTriples) {
-            if (Arrays.stream(triple).anyMatch(p -> p == removePosition) && isAllOpponentStones(board, triple, currentPlayerStone)) {
-                return true;
+            if (Arrays.stream(triple).anyMatch(p -> p == removePosition)) {
+                if (isAllOpponentStones(board, triple, currentPlayerStone)) {
+                    return true;
+                }
             }
         }
 
         for (int[] triple : columnTriples) {
-            if (Arrays.stream(triple).anyMatch(p -> p == removePosition) && isAllOpponentStones(board, triple, currentPlayerStone)) {
-                return true;
+            if (Arrays.stream(triple).anyMatch(p -> p == removePosition)) {
+                if (isAllOpponentStones(board, triple, currentPlayerStone)) {
+                    return true;
+                }
             }
         }
+
         return false; // 제거 가능
     }
 
