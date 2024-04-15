@@ -159,6 +159,14 @@ public class MorrisService {
         GameRoom gameRoom = gameRooms.get(gameId);
         String[] board = gameBoards.get(gameId);
 
+        if (removePosition == 99) {
+            switchTurn(gameId, gameRoom);
+
+            return StonePlacementResponseDto.builder()
+                    .message("턴이 변경되었습니다.")
+                    .build();
+        }
+
         // 제거하려는 말이 연속된 3행 또는 3열인 경우 제거할 수 없음
         if (checkRowOrColumnTriples(gameId, board, removePosition)) {
             return StonePlacementResponseDto.builder()
