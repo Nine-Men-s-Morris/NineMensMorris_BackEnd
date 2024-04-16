@@ -37,7 +37,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         Cookie accessTokenCookie = new Cookie("access_token", accessToken);
         accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(Math.toIntExact(accessTokenExpiration / 1000));
+        accessTokenCookie.setMaxAge(Math.toIntExact(accessTokenExpiration));
         accessTokenCookie.setHttpOnly(true);
         //accessTokenCookie.setSecure(true); // 240404 ldhbenecia | https 설정 이후 사용
         response.addCookie(accessTokenCookie);
