@@ -6,15 +6,35 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    platform: linux/amd64
     ports:
-      - 8081:8081
+      - 8081:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://ninemensmorris_db:3306/ninemensmorris_db?useSSL=false&serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
     restart: unless-stopped
+
+  ninemensmorris_db:
+    image: mysql:8.1.0
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ninemensmorris_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    restart: always
 
   nginx:
     container_name: ninemensmorris_nginx
     build:
       context: ./nginx
       dockerfile: Dockerfile
+    platform: linux/amd64
     ports:
       - "80:80"
       - "443:443"
@@ -22,16 +42,3 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:
       - server
-
-  ninemensmorris_db:
-    image: mysql:8.1.0
-    environment:
-      MYSQL_DATABASE: ninemensmorris_db
-      MYSQL_USER: ${SPRING_DATASOURCE_USERNAME}
-      MYSQL_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./mysql_data:/var/lib/mysql
-    restart: always
