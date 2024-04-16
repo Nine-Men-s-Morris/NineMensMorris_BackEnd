@@ -1,7 +1,8 @@
 version: "3.8"
 
 services:
-  ninemensmorris_server:
+  server:
+    container_name: server
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,8 +18,10 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - ninemensmorris_server
+      - server
 
   ninemensmorris_db:
     image: mysql:8.1.0
