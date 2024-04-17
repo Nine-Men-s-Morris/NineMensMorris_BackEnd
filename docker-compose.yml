@@ -10,7 +10,7 @@ services:
     ports:
       - 8080:8080
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://ninemensmorris_db:3306/ninemensmorris_db?useSSL=false&serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_URL: jdbc:mysql://ninemensmorris_db:3306/morris_db?useSSL=false&allowPublicKeyRetrieval-true
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
     restart: unless-stopped
@@ -19,12 +19,13 @@ services:
     networks:
       - network
 
-  ninemensmorris_db:
+  database:
+    container_name: ninemensmorris_db
     image: mysql:8.1.0
     platform: linux/amd64
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ninemensmorris_db
+      MYSQL_DATABASE: morris_db
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:
