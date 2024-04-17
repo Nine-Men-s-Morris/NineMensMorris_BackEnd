@@ -10,12 +10,12 @@ services:
     ports:
       - 8080:8080
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://ninemensmorris_db:3306/morris_db?useSSL=false&allowPublicKeyRetrieval-true
+      SPRING_DATASOURCE_URL: jdbc:mysql://ninemensmorris_db:3306/morris_db?useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
     restart: unless-stopped
     depends_on:
-      - ninemensmorris_db
+      - database
     networks:
       - network
 
