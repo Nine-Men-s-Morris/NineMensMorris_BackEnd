@@ -10,17 +10,17 @@ services:
     ports:
       - 8080:8080
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://morris_db:3306/morris_db?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/morris_db?useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=password
     restart: unless-stopped
     depends_on:
-      - morris_db
+      - database
     networks:
       - network
 
-  morris_db:
-    container_name: morris_db
+  database:
+    container_name: mysql_db
     image: mysql:latest
     platform: linux/amd64
     environment:
@@ -31,7 +31,7 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - ./mysql-init.d:/docker-entrypoint-initdb.d
     networks:
       - network
     restart: always
