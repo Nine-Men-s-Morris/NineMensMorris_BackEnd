@@ -38,11 +38,14 @@ services:
   nginx:
     container_name: ninemensmorris_nginx
     image: nginx:latest
+    build:
+      context: nginx
+      dockerfile: Dockerfile
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - backend
 

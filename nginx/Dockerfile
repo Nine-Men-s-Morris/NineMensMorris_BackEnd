@@ -4,4 +4,4 @@ FROM nginx:latest
 RUN rm /etc/nginx/nginx.conf
 
 # 새로운 설정 파일을 복사
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
