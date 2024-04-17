@@ -45,6 +45,8 @@ out/
 
 # setting
 application.properties
+application-local.yml
+application-prod.yml
 .env
 
 mysql_data
