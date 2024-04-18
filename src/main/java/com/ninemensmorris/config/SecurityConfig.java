@@ -81,6 +81,7 @@ public class SecurityConfig {
 
         configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedOrigin("https://ninemensmorris.site");
+        configuration.addAllowedOrigin("http://ninemensmorris.site:8080");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
