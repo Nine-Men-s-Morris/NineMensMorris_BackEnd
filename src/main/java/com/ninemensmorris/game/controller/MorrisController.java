@@ -24,12 +24,6 @@ public class MorrisController {
     private final MorrisService morrisService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @MessageMapping("/rooms")
-    public void getAllGameRooms() {
-        List<GameRoomDto> gameRooms = gameRoomService.getAllGameRooms();
-        simpMessagingTemplate.convertAndSend("/topic/game/rooms", gameRooms);
-    }
-
     @MessageMapping("/joinGame/{roomId}")
     public void joinGame(@DestinationVariable Long roomId, Long userId) {
         boolean gameStarted = gameRoomService.joinGame(roomId, userId);
