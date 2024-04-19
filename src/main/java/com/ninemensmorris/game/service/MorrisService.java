@@ -11,6 +11,7 @@ import com.ninemensmorris.game.dto.Morris.*;
 import com.ninemensmorris.game.repository.GameRoomRepository;
 import com.ninemensmorris.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -24,6 +25,7 @@ public class MorrisService {
 
     private final UserService userService;
     private final GameRoomRepository gameRoomRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     private static final String PLAYER_ONE_STONE = "BLACK";
     private static final String PLAYER_TWO_STONE = "WHITE";
@@ -38,6 +40,7 @@ public class MorrisService {
     private final Map<Long, Integer> hostTotal = new HashMap<>();
     private final Map<Long, Integer> guestTotal = new HashMap<>();
     private final Map<Long, Long> currentTurns = new HashMap<>();
+    private final Map<Long, Long> tieRequesters = new HashMap<>();
 
     public MorrisResponse<StonePlacementResponseDto> startGame(Long gameId) {
         Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(gameId);
@@ -314,35 +317,56 @@ public class MorrisService {
                 .loser(loserId)
                 .build();
 
-        return MorrisResponse.response(ResponseType.GAME_OVER, MorrisResponseCode.GAME_TIE, responseDto);
-    }
-
-    public MorrisResponse<StonePlacementResponseDto> tieRequest(TieRequestDto requestDto) {
-        Long gameId = requestDto.getGameId();
-        GameRoom gameRoom = gameRooms.get(gameId);
-
-        String[] board = gameBoards.get(gameId);
-
-        gameRoomRepository.delete(gameRoom);
-
-        StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
-                .board(board)
-                .hostId(gameRoom.getPlayerOneId())
-                .guestId(gameRoom.getPlayerTwoId())
-                .currentTurn(currentTurns.get(gameId))
-                .hostAddable(hostAddableStones.get(gameId))
-                .guestAddable(guestAddableStones.get(gameId))
-                .hostTotal(hostTotal.get(gameId))
-                .guestTotal(guestTotal.get(gameId))
-                .phase(gamePhases.get(gameId))
-                .isRemoving(false)
-                .status(MorrisStatus.Status.FINISHED)
-                .winner(null)
-                .loser(null)
-                .build();
-
         return MorrisResponse.response(ResponseType.GAME_OVER, MorrisResponseCode.GAME_OVER, responseDto);
     }
+
+    public void tieRequest(TieRequestDto requestDto) {
+        Long gameId = requestDto.getGameId();
+        Long userId = requestDto.getUserId();
+        GameRoom gameRoom = gameRooms.get(gameId);
+
+        tieRequesters.put(gameId, userId);
+
+        // 상대편 클라이언트에게 무승부 요청 전송
+        Long opponentId = (gameRoom.getPlayerOneId().equals(requestDto.getUserId())) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
+        simpMessagingTemplate.convertAndSendToUser(opponentId.toString(), "/topic/game/" + gameId + "/tie-request", "상대방이 무승부 요청을 보냈습니다. 받아들이겠습니까?");
+
+        simpMessagingTemplate.convertAndSendToUser(userId.toString(), "/topic/game/" + gameId + "/tie-request", "상대방에게 무승부 요청을 보냈습니다.");
+    }
+
+    public void handleTieAcceptance(TieRequestDto requestDto) {
+        Long gameId = requestDto.getGameId();
+        Long userId = requestDto.getUserId();
+        Long requesterId = tieRequesters.get(gameId);
+
+        if (requesterId != null && !requesterId.equals(userId)) {
+            GameRoom gameRoom = gameRooms.get(gameId);
+            gameRoomRepository.delete(gameRoom);
+        }
+
+        // 무승부 요청자에게 전송
+        simpMessagingTemplate.convertAndSendToUser(requesterId.toString(), "/topic/game/" + gameId + "/tie-request-response", "무승부 요청을 승낙했습니다.");
+    }
+
+    public void handleTieRejection(TieRequestDto tieRequestDto) {
+        Long gameId = tieRequestDto.getGameId();
+        Long requesterId = tieRequesters.get(gameId);
+
+        // 무승부 요청자에게 전송
+        simpMessagingTemplate.convertAndSendToUser(requesterId.toString(), "/topic/game/" + gameId + "/tie-request-response", "무승부 요청을 거절했습니다.");
+
+        tieRequesters.remove(gameId);
+    }
+
+    private void sendTieResponseToOpponent(Long gameId, Long userId, boolean accepted) {
+        // 해당 게임의 상대방 ID를 가져옵니다.
+        GameRoom gameRoom = gameRooms.get(gameId);
+        Long opponentId = (gameRoom.getPlayerOneId().equals(userId)) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
+
+        // 클라이언트에게 무승부 요청에 대한 응답을 전송합니다.
+        simpMessagingTemplate.convertAndSendToUser(opponentId.toString(), "/topic/tie-response", (accepted ? "상대방이 무승부 요청을 수락했습니다." : "상대방이 무승부 요청을 거절했습니다."));
+    }
+
 
     public void handleUserDisconnection(Long userId) {
         System.out.println("Socket 연결 끊김 로직 작성");

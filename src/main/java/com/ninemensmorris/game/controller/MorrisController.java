@@ -54,9 +54,18 @@ public class MorrisController {
         simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), withdrawResponse);
     }
 
-    @MessageMapping("/game/tie")
-    public void withdraw(TieRequestDto requestDto) {
-        MorrisResponse<StonePlacementResponseDto> tieResponse = morrisService.tieRequest(requestDto);
-        simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), tieResponse);
+    @MessageMapping("/game/tie-request")
+    public void tieRequest(TieRequestDto requestDto) {
+        morrisService.tieRequest(requestDto);
+    }
+
+    @MessageMapping("/game/tie-accept")
+    public void handleTieAcceptance(TieRequestDto requestDto) {
+        morrisService.handleTieAcceptance(requestDto);
+    }
+
+    @MessageMapping("/game/tie-reject")
+    public void handleTieRejection(TieRequestDto requestDto) {
+        morrisService.handleTieRejection(requestDto);
     }
 }

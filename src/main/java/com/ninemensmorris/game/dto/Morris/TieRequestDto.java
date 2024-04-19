@@ -6,4 +6,5 @@ import lombok.Getter;
 public class TieRequestDto {
 
     private Long gameId;
+    private Long userId;
 }
