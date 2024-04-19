@@ -7,6 +7,7 @@ public enum ErrorCode {
 
     SYSTEM_EXCEPTION(500,  "Internal Server Error"),
     NOT_FOUND_HANDLER(404, "404 NOT FOUND"),
+    NOT_FOUND_USER(404, "해당 사용자를 찾을 수 없습니다."),
 
     // Game Room
     GAME_ROOM_NOT_FOUND(404, "게임 방을 찾을 수 없습니다."),

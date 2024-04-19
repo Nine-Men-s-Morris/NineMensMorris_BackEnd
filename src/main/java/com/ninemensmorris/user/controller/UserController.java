@@ -1,5 +1,7 @@
 package com.ninemensmorris.user.controller;
 
+import com.ninemensmorris.common.exception.CustomException;
+import com.ninemensmorris.common.response.ErrorCode;
 import com.ninemensmorris.user.dto.UserNicknameResponseDto;
 import com.ninemensmorris.user.dto.UserRankDto;
 import com.ninemensmorris.user.dto.UserResponseDto;
@@ -33,6 +35,10 @@ public class UserController {
     @GetMapping("/api/user/{userId}")
     public ResponseEntity<UserNicknameResponseDto> getUserNickname(@PathVariable Long userId) {
         UserNicknameResponseDto responseDto = userService.getUserNickname(userId);
-        return ResponseEntity.ok(responseDto);
+        if (responseDto != null) {
+            return ResponseEntity.ok(responseDto);
+        } else {
+            throw new CustomException(ErrorCode.NOT_FOUND_USER);
+        }
     }
 }
