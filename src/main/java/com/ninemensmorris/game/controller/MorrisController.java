@@ -2,10 +2,7 @@ package com.ninemensmorris.game.controller;
 
 import com.ninemensmorris.common.response.MorrisResponse;
 import com.ninemensmorris.game.dto.GameRoom.GameRoomDto;
-import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
-import com.ninemensmorris.game.dto.Morris.StonePlacementRequestDto;
-import com.ninemensmorris.game.dto.Morris.StonePlacementResponseDto;
-import com.ninemensmorris.game.dto.Morris.WithdrawRequestDto;
+import com.ninemensmorris.game.dto.Morris.*;
 import com.ninemensmorris.game.service.GameRoomService;
 import com.ninemensmorris.game.service.MorrisService;
 import lombok.RequiredArgsConstructor;
@@ -55,5 +52,11 @@ public class MorrisController {
     public void withdraw(WithdrawRequestDto requestDto) {
         MorrisResponse<StonePlacementResponseDto> withdrawResponse = morrisService.withdraw(requestDto);
         simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), withdrawResponse);
+    }
+
+    @MessageMapping("/game/tie")
+    public void withdraw(TieRequestDto requestDto) {
+        MorrisResponse<StonePlacementResponseDto> tieResponse = morrisService.tieRequest(requestDto);
+        simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), tieResponse);
     }
 }

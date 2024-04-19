@@ -7,10 +7,7 @@ import com.ninemensmorris.common.response.MorrisResponse.ResponseType;
 import com.ninemensmorris.common.response.MorrisResponseCode;
 import com.ninemensmorris.game.domain.GameRoom;
 import com.ninemensmorris.game.domain.MorrisStatus;
-import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
-import com.ninemensmorris.game.dto.Morris.StonePlacementRequestDto;
-import com.ninemensmorris.game.dto.Morris.StonePlacementResponseDto;
-import com.ninemensmorris.game.dto.Morris.WithdrawRequestDto;
+import com.ninemensmorris.game.dto.Morris.*;
 import com.ninemensmorris.game.repository.GameRoomRepository;
 import com.ninemensmorris.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -317,7 +314,38 @@ public class MorrisService {
                 .loser(loserId)
                 .build();
 
+        return MorrisResponse.response(ResponseType.GAME_OVER, MorrisResponseCode.GAME_TIE, responseDto);
+    }
+
+    public MorrisResponse<StonePlacementResponseDto> tieRequest(TieRequestDto requestDto) {
+        Long gameId = requestDto.getGameId();
+        GameRoom gameRoom = gameRooms.get(gameId);
+
+        String[] board = gameBoards.get(gameId);
+
+        gameRoomRepository.delete(gameRoom);
+
+        StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
+                .board(board)
+                .hostId(gameRoom.getPlayerOneId())
+                .guestId(gameRoom.getPlayerTwoId())
+                .currentTurn(currentTurns.get(gameId))
+                .hostAddable(hostAddableStones.get(gameId))
+                .guestAddable(guestAddableStones.get(gameId))
+                .hostTotal(hostTotal.get(gameId))
+                .guestTotal(guestTotal.get(gameId))
+                .phase(gamePhases.get(gameId))
+                .isRemoving(false)
+                .status(MorrisStatus.Status.FINISHED)
+                .winner(null)
+                .loser(null)
+                .build();
+
         return MorrisResponse.response(ResponseType.GAME_OVER, MorrisResponseCode.GAME_OVER, responseDto);
+    }
+
+    public void handleUserDisconnection(Long userId) {
+        System.out.println("Socket 연결 끊김 로직 작성");
     }
 
 

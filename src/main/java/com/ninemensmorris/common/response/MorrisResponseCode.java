@@ -13,8 +13,8 @@ public enum MorrisResponseCode {
     CANNOT_REMOVE_ROW_COLUMN("3행 또는 3열에 속한 돌은 제거할 수 없습니다."),
     STONE_REMOVAL_SUCCESS("돌을 성공적으로 제거하였습니다."),
     GAME_OVER("게임이 종료되었습니다."),
-    NO_WINNER("승리자가 없습니다. (게임 승패 판단 로직 에러)"),
-    GAME_ERROR("게임이 종료되었습니다.");
+    GAME_TIE("게임이 무승부 처리되었습니다."),
+    NO_WINNER("승리자가 없습니다. (게임 승패 판단 로직 에러)");
 
     private String message;
 
