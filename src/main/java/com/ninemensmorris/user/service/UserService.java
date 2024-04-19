@@ -1,6 +1,7 @@
 package com.ninemensmorris.user.service;
 
 import com.ninemensmorris.user.domain.User;
+import com.ninemensmorris.user.dto.UserNicknameResponseDto;
 import com.ninemensmorris.user.dto.UserRankDto;
 import com.ninemensmorris.user.dto.UserResponseDto;
 import com.ninemensmorris.user.repository.UserRepository;
@@ -44,6 +45,11 @@ public class UserService {
         return users.stream()
                 .map(UserRankDto::new)
                 .collect(Collectors.toList());
+    }
+
+    public UserNicknameResponseDto getUserNickname(Long userId) {
+        User user = userRepository.findNicknameByUserId(userId);
+        return new UserNicknameResponseDto(user.getNickname());
     }
 
     public void increaseScore(Long userId, int score) {
