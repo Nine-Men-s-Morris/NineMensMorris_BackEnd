@@ -1,6 +1,7 @@
 package com.ninemensmorris.game.controller;
 
 import com.ninemensmorris.common.response.MorrisResponse;
+import com.ninemensmorris.game.dto.GameRoom.GameRoomDto;
 import com.ninemensmorris.game.dto.Morris.RemoveOpponentStoneRequestDto;
 import com.ninemensmorris.game.dto.Morris.StonePlacementRequestDto;
 import com.ninemensmorris.game.dto.Morris.StonePlacementResponseDto;
@@ -13,6 +14,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class MorrisController {
@@ -20,6 +23,12 @@ public class MorrisController {
     private final GameRoomService gameRoomService;
     private final MorrisService morrisService;
     private final SimpMessagingTemplate simpMessagingTemplate;
+
+    @MessageMapping("/rooms")
+    public void getAllGameRooms() {
+        List<GameRoomDto> gameRooms = gameRoomService.getAllGameRooms();
+        simpMessagingTemplate.convertAndSend("/topic/game/rooms", gameRooms);
+    }
 
     @MessageMapping("/joinGame/{roomId}")
     public void joinGame(@DestinationVariable Long roomId, Long userId) {
