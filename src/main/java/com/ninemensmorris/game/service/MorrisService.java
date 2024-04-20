@@ -41,6 +41,34 @@ public class MorrisService {
     private final Map<Long, Integer> guestTotal = new HashMap<>();
     private final Map<Long, Long> currentTurns = new HashMap<>();
     private final Map<Long, Long> tieRequesters = new HashMap<>();
+    private final Map<String, Long> socketUserMap = new HashMap<>();
+
+    public void handleDisconnection(String sessionId, Long userId) {
+        removeSocket(sessionId, userId);
+        GameRoom gameRoom = findRoomByUserId(userId);
+        if (gameRoom != null) {
+            gameRoomRepository.delete(gameRoom);
+            gameRooms.remove(gameRoom.getId()); // 방에 대한 참조를 해제합니다.
+        }
+
+        simpMessagingTemplate.convertAndSend("/topic/disconnected/" + gameRoom.getId(), "사용자 " + userId + "의 연결이 끊겼습니다.");
+    }
+    public void addSocket(String sessionId, Long userId) {
+        socketUserMap.put(sessionId, userId);
+    }
+
+    public void removeSocket(String sessionId, Long userId) {
+        socketUserMap.remove(sessionId, userId);
+    }
+
+    public GameRoom findRoomByUserId(Long userId) {
+        for (GameRoom room : gameRooms.values()) {
+            if (room.getPlayerOneId().equals(userId) || room.getPlayerTwoId().equals(userId)) {
+                return room;
+            }
+        }
+        return null;
+    }
 
     public MorrisResponse<StonePlacementResponseDto> startGame(Long gameId) {
         Optional<GameRoom> optionalGameRoom = gameRoomRepository.findById(gameId);
@@ -357,21 +385,6 @@ public class MorrisService {
 
         tieRequesters.remove(gameId);
     }
-
-    private void sendTieResponseToOpponent(Long gameId, Long userId, boolean accepted) {
-        // 해당 게임의 상대방 ID를 가져옵니다.
-        GameRoom gameRoom = gameRooms.get(gameId);
-        Long opponentId = (gameRoom.getPlayerOneId().equals(userId)) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
-
-        // 클라이언트에게 무승부 요청에 대한 응답을 전송합니다.
-        simpMessagingTemplate.convertAndSendToUser(opponentId.toString(), "/topic/tie-response", (accepted ? "상대방이 무승부 요청을 수락했습니다." : "상대방이 무승부 요청을 거절했습니다."));
-    }
-
-
-    public void handleUserDisconnection(Long userId) {
-        System.out.println("Socket 연결 끊김 로직 작성");
-    }
-
 
     private void placeStonePhaseOne(Long gameId, int initialPosition, String currentPlayerStone) {
         String[] board = gameBoards.get(gameId);
