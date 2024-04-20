@@ -2,8 +2,8 @@ package com.ninemensmorris.config;
 
 import com.ninemensmorris.game.service.MorrisService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
@@ -12,6 +12,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import java.security.Principal;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class WebSocketEventListener {
 
@@ -25,7 +26,7 @@ public class WebSocketEventListener {
 
         String userId = principal.getName();
         morrisService.addSocket(sessionId, Long.parseLong(userId));
-        System.out.println("소켓에 연결되었습니다. 유저 아이디: " + userId + ", 세션 아이디: " + sessionId);
+        log.info("소켓에 연결되었습니다. 유저 아이디: {}, 세션 아이디: {}", userId, sessionId);
     }
 
     @EventListener
@@ -36,6 +37,6 @@ public class WebSocketEventListener {
 
         String userId = principal.getName();
         morrisService.handleDisconnection(sessionId, Long.parseLong(userId));
-        System.out.println("소켓 연결이 끊겼습니다. 유저 아이디: " + userId + ", 세션 아이디: " + sessionId);
+        log.info("소켓 연결이 끊겼습니다. 유저 아이디: {}, 세션 아이디: {}", userId, sessionId);
     }
 }
