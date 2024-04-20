@@ -51,7 +51,7 @@ public class MorrisService {
             gameRooms.remove(gameRoom.getId()); // 방에 대한 참조를 해제합니다.
         }
 
-        simpMessagingTemplate.convertAndSend("/topic/disconnected/" + gameRoom.getId(), "사용자 " + userId + "의 연결이 끊겼습니다.");
+        simpMessagingTemplate.convertAndSend("/topic/game/" + gameRoom.getId(), "사용자 " + userId + "의 연결이 끊겼습니다.");
     }
     public void addSocket(String sessionId, Long userId) {
         socketUserMap.put(sessionId, userId);
@@ -357,9 +357,9 @@ public class MorrisService {
 
         // 상대편 클라이언트에게 무승부 요청 전송
         Long opponentId = (gameRoom.getPlayerOneId().equals(requestDto.getUserId())) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
-        simpMessagingTemplate.convertAndSendToUser(opponentId.toString(), "/topic/game/" + gameId + "/tie-request", "상대방이 무승부 요청을 보냈습니다. 받아들이겠습니까?");
+        simpMessagingTemplate.convertAndSendToUser(opponentId.toString(), "/topic/game/" + gameId,  "상대방이 무승부 요청을 보냈습니다. 받아들이겠습니까?");
 
-        simpMessagingTemplate.convertAndSendToUser(userId.toString(), "/topic/game/" + gameId + "/tie-request", "상대방에게 무승부 요청을 보냈습니다.");
+        simpMessagingTemplate.convertAndSendToUser(userId.toString(), "/topic/game/" + gameId, "상대방에게 무승부 요청을 보냈습니다.");
     }
 
     public void handleTieAcceptance(TieRequestDto requestDto) {
@@ -373,7 +373,7 @@ public class MorrisService {
         }
 
         // 무승부 요청자에게 전송
-        simpMessagingTemplate.convertAndSendToUser(requesterId.toString(), "/topic/game/" + gameId + "/tie-request-response", "무승부 요청을 승낙했습니다.");
+        simpMessagingTemplate.convertAndSendToUser(requesterId.toString(), "/topic/game/" + gameId, "무승부 요청을 승낙했습니다.");
     }
 
     public void handleTieRejection(TieRequestDto tieRequestDto) {
@@ -381,7 +381,7 @@ public class MorrisService {
         Long requesterId = tieRequesters.get(gameId);
 
         // 무승부 요청자에게 전송
-        simpMessagingTemplate.convertAndSendToUser(requesterId.toString(), "/topic/game/" + gameId + "/tie-request-response", "무승부 요청을 거절했습니다.");
+        simpMessagingTemplate.convertAndSendToUser(requesterId.toString(), "/topic/game/" + gameId, "무승부 요청을 거절했습니다.");
 
         tieRequesters.remove(gameId);
     }
