@@ -324,7 +324,7 @@ public class MorrisService {
         Long winnerId = gameRoom.getPlayerOneId().equals(userId) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
         Long loserId = userId;
 
-        userService.increaseScore(winnerId, 20);
+        userService.increaseScore(winnerId, 30);
         userService.decreaseScore(loserId, 20);
 
         gameRoomRepository.delete(gameRoom);
