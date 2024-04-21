@@ -13,7 +13,10 @@ public enum ErrorCode {
     GAME_ROOM_NOT_FOUND(404, "게임 방을 찾을 수 없습니다."),
     GAME_ALREADY_JOIN(403, "이미 게임에 참가한 플레이어입니다."),
     FAILED_TO_JOIN_GAME(400, "게임 참가 요청이 실패하였습니다."),
-    FAILED_TO_LEAVE_GAME_ROOM(400, "게임 나가기 요청이 실패하였습니다.");
+    FAILED_TO_LEAVE_GAME_ROOM(400, "게임 나가기 요청이 실패하였습니다."),
+
+    // Morris
+    NOT_FOUND_SESSION_ID(403, "세션 id 값을 찾을 수 없습니다.");
 
     private final int status;
     private final String message;
