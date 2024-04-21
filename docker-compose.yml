@@ -31,6 +31,7 @@ services:
     ports:
       - 3306:3306
     volumes:
+      - morris_mysql_volume:/var/lib/mysql
       - ./mysql-init.d:/docker-entrypoint-initdb.d
     networks:
       - network
@@ -38,3 +39,6 @@ services:
 
 networks:
   network:
+
+volumes:
+  morris_mysql_volume:
