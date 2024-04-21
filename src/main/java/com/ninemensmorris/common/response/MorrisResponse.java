@@ -20,7 +20,14 @@ public class MorrisResponse<T> {
                 .build();
     }
 
+    public static MorrisResponse<Void> response(ResponseType type, MorrisResponseCode morrisResponseCode) {
+        return MorrisResponse.<Void>builder()
+                .type(type)
+                .message(morrisResponseCode.getMessage())
+                .build();
+    }
+
     public enum ResponseType {
-        SYNC_GAME, ERROR, GAME_START, GAME_STATE_UPDATE, GAME_OVER
+        SYNC_GAME, ERROR, GAME_START, GAME_STATE_UPDATE, GAME_OVER, GAME_DRAW, GAME_WITHDRAW
     }
 }
