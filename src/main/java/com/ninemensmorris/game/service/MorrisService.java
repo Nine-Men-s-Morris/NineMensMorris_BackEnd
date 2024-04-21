@@ -50,7 +50,7 @@ public class MorrisService {
             gameRooms.remove(gameRoom.getId()); // 방에 대한 참조를 해제합니다.
         }
 
-        simpMessagingTemplate.convertAndSend("/topic/game/" + gameRoom.getId(), "사용자 " + userId + "의 연결이 끊겼습니다.");
+        simpMessagingTemplate.convertAndSend("/topic/game/" + gameRoom.getId(), "SOCKET_ERROR");
     }
     public void addSocket(Long userId, String sessionId) {
         socketUserMap.put(userId, sessionId);
