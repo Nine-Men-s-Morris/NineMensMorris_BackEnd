@@ -314,11 +314,12 @@ public class MorrisService {
         }
     }
 
-    public MorrisResponse<Void> withdraw(WithdrawRequestDto requestDto) {
+    public MorrisResponse<StonePlacementResponseDto> withdraw(WithdrawRequestDto requestDto) {
         Long gameId = requestDto.getGameId();
         Long userId = requestDto.getUserId();
         GameRoom gameRoom = gameRooms.get(gameId);
 
+        String[] board = gameBoards.get(gameId);
         Long winnerId = gameRoom.getPlayerOneId().equals(userId) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
         Long loserId = userId;
 
@@ -327,7 +328,23 @@ public class MorrisService {
 
         gameRoomRepository.delete(gameRoom);
 
-        return MorrisResponse.response(ResponseType.GAME_WITHDRAW, MorrisResponseCode.GAME_WITHDRAW);
+        StonePlacementResponseDto responseDto = StonePlacementResponseDto.builder()
+                .board(board)
+                .hostId(gameRoom.getPlayerOneId())
+                .guestId(gameRoom.getPlayerTwoId())
+                .currentTurn(currentTurns.get(gameId))
+                .hostAddable(hostAddableStones.get(gameId))
+                .guestAddable(guestAddableStones.get(gameId))
+                .hostTotal(hostTotal.get(gameId))
+                .guestTotal(guestTotal.get(gameId))
+                .phase(gamePhases.get(gameId))
+                .isRemoving(false)
+                .status(MorrisStatus.Status.FINISHED)
+                .winner(winnerId)
+                .loser(loserId)
+                .build();
+
+        return MorrisResponse.response(ResponseType.GAME_WITHDRAW, MorrisResponseCode.GAME_WITHDRAW, responseDto);
     }
 
     public MorrisResponse<Void> tieRequest(TieRequestDto requestDto) {

@@ -50,7 +50,7 @@ public class MorrisController {
 
     @MessageMapping("/game/withdraw")
     public void withdraw(WithdrawRequestDto requestDto) {
-        MorrisResponse<Void> withdrawResponse = morrisService.withdraw(requestDto);
+        MorrisResponse<StonePlacementResponseDto> withdrawResponse = morrisService.withdraw(requestDto);
         simpMessagingTemplate.convertAndSend("/topic/game/" + requestDto.getGameId(), withdrawResponse);
     }
 
