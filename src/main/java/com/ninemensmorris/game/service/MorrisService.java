@@ -331,7 +331,7 @@ public class MorrisService {
     }
 
     public MorrisResponse<Void> tieRequest(TieRequestDto requestDto) {
-        return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.GAME_TIE_REQUEST);
+        return MorrisResponse.response(ResponseType.REQUEST_DRAW, MorrisResponseCode.GAME_TIE_REQUEST);
     }
 
     public MorrisResponse<Void> handleTieAcceptance(TieRequestDto requestDto) {
@@ -344,7 +344,7 @@ public class MorrisService {
     }
 
     public MorrisResponse<Void> handleTieRejection(TieRequestDto requestDto) {
-        return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.GAME_TIE_REJECTION);
+        return MorrisResponse.response(ResponseType.REJECT_DRAW, MorrisResponseCode.GAME_TIE_REJECTION);
     }
 
     private void placeStonePhaseOne(Long gameId, int initialPosition, String currentPlayerStone) {
