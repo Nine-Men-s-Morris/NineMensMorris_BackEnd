@@ -2,7 +2,7 @@
 <img src="https://hackmd.io/_uploads/HyAvl0yWR.png" width="128px" />
 
 ## Nine men's Morris | 나인멘스모리스
-> ### 배포 링크 - https://ninemensmorris.site
+> ### 배포 링크 - ~~https://ninemensmorris.site~~
 > [나인멘스모리스 작업 노션](https://www.notion.so/ldhbenecia/Side-Project-f19f6b2d80074a8da597b0f0d8a7f07e?pvs=4)
 
 <br />
