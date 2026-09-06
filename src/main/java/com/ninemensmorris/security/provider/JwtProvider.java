@@ -1,9 +1,10 @@
 package com.ninemensmorris.security.provider;
 
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.Getter;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +15,6 @@ import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
-@Getter
 @Slf4j
 public class JwtProvider {
 
@@ -24,18 +24,13 @@ public class JwtProvider {
     @Value("${ACCESS_TOKEN_EXPIRATION}")
     private Long accessTokenExpirationPeriod;
 
-    @Value("${REFRESH_TOKEN_EXPIRATION}")
-    private Long refreshTokenExpirationPeriod;
+    private SecretKey signingKey;
+    private JwtParser parser;
 
-    @Value("${ACCESS_TOKEN_HEADER}")
-    private String accessHeader;
-
-    @Value("${REFRESH_TOKEN_HEADER}")
-    private String refreshHeader;
-
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+    @PostConstruct
+    void init() {
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(this.secretKey));
+        this.parser = Jwts.parser().verifyWith(this.signingKey).build();
     }
 
     public String generateToken(Long userId, Long expirationPeriod) {
@@ -43,10 +38,10 @@ public class JwtProvider {
         Date expiration = new Date(now.getTime() + expirationPeriod);
 
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
-                .setIssuedAt(now)
-                .setExpiration(expiration)
-                .signWith(this.getSigningKey())
+                .subject(String.valueOf(userId))
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(this.signingKey)
                 .compact();
     }
 
@@ -54,34 +49,19 @@ public class JwtProvider {
         return generateToken(userId, accessTokenExpirationPeriod);
     }
 
-    public String generateRefreshToken(Long userId) {
-        return generateToken(userId, refreshTokenExpirationPeriod);
-    }
-
     public boolean validateToken(String token) {
-
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(this.getSigningKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-
+            this.parser.parseSignedClaims(token);
             return true;
         } catch (Exception exception) {
-            log.error("Failed to validate JWT token: {}", exception.getMessage());
+            // 만료된 토큰으로 접속하는 것은 정상 흐름이다. ERROR 로 남기면 로그가 도배된다.
+            log.debug("JWT 검증 실패: {}", exception.getMessage());
             return false;
         }
     }
 
     public Long extractSubject(String token) {
-        String userIdString = Jwts.parserBuilder()
-                .setSigningKey(this.getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-
-        return Long.parseLong(userIdString); // 추출한 식별자 아이디를 Long 타입으로 변환하여 반환
+        String userIdString = this.parser.parseSignedClaims(token).getPayload().getSubject();
+        return Long.parseLong(userIdString);
     }
 }
