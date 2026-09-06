@@ -1,4 +1,4 @@
-package com.ninemensmorris.game.dto.GameRoom;
+package com.ninemensmorris.game.dto.gameroom;
 
 import com.ninemensmorris.game.domain.GameRoom;
 import lombok.Getter;

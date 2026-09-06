@@ -1,4 +1,4 @@
-package com.ninemensmorris.game.dto.Morris;
+package com.ninemensmorris.game.dto.morris;
 
 import lombok.Getter;
 

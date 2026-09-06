@@ -1,7 +1,7 @@
 package com.ninemensmorris.game.controller;
 
 import com.ninemensmorris.common.response.MorrisResponse;
-import com.ninemensmorris.game.dto.Morris.*;
+import com.ninemensmorris.game.dto.morris.*;
 import com.ninemensmorris.game.service.GameRoomService;
 import com.ninemensmorris.game.service.MorrisService;
 import lombok.RequiredArgsConstructor;

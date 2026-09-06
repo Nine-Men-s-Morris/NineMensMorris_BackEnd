@@ -2,9 +2,9 @@ package com.ninemensmorris.game.controller;
 
 import com.ninemensmorris.common.exception.CustomException;
 import com.ninemensmorris.common.response.ErrorCode;
-import com.ninemensmorris.game.dto.GameRoom.CreateGameRequestDto;
-import com.ninemensmorris.game.dto.GameRoom.CreateGameResponseDto;
-import com.ninemensmorris.game.dto.GameRoom.GameRoomDto;
+import com.ninemensmorris.game.dto.gameroom.CreateGameRequestDto;
+import com.ninemensmorris.game.dto.gameroom.CreateGameResponseDto;
+import com.ninemensmorris.game.dto.gameroom.GameRoomDto;
 import com.ninemensmorris.game.service.GameRoomService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

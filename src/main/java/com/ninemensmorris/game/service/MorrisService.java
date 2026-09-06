@@ -7,7 +7,7 @@ import com.ninemensmorris.common.response.MorrisResponse.ResponseType;
 import com.ninemensmorris.common.response.MorrisResponseCode;
 import com.ninemensmorris.game.domain.GameRoom;
 import com.ninemensmorris.game.domain.MorrisStatus;
-import com.ninemensmorris.game.dto.Morris.*;
+import com.ninemensmorris.game.dto.morris.*;
 import com.ninemensmorris.game.repository.GameRoomRepository;
 import com.ninemensmorris.user.service.UserService;
 import java.util.Arrays;

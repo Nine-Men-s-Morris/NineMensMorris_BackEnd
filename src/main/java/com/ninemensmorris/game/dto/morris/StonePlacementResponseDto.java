@@ -1,4 +1,4 @@
-package com.ninemensmorris.game.dto.Morris;
+package com.ninemensmorris.game.dto.morris;
 
 import com.ninemensmorris.game.domain.MorrisStatus;
 import lombok.AllArgsConstructor;
