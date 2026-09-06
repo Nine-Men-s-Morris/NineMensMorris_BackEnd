@@ -24,7 +24,7 @@ public class WebSocketEventListener {
         Principal principal = accessor.getUser();
 
         String userId = principal.getName();
-        log.info("소켓에 연결되었습니다. 유저 아이디: {}, 세션 아이디: {}", userId, sessionId);
+        log.debug("소켓 연결 userId={} sessionId={}", userId, sessionId);
     }
 
     @EventListener
@@ -35,6 +35,6 @@ public class WebSocketEventListener {
 
         String userId = principal.getName();
         morrisService.handleDisconnection(Long.parseLong(userId));
-        log.info("소켓 연결이 끊겼습니다. 유저 아이디: {}, 세션 아이디: {}", userId, sessionId);
+        log.debug("소켓 해제 userId={} sessionId={}", userId, sessionId);
     }
 }
