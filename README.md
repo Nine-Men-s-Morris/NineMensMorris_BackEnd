@@ -31,3 +31,67 @@
 
 ## 아키텍처
 ![image](https://hackmd.io/_uploads/Hy3KFaJW0.png)
+
+<br />
+
+## 로컬 실행
+
+### 준비물
+
+- JDK 21 (Gradle toolchain 이 자동으로 받지만 로컬에 있으면 빠름)
+- Docker (MySQL 및 테스트용 Testcontainers 에 필요)
+
+### 1. 환경변수
+
+```bash
+cp .env.example .env
+```
+
+| 키 | 설명 |
+| --- | --- |
+| `MYSQL_*` | docker-compose 가 띄우는 MySQL 계정·DB명·포트 |
+| `SPRING_DATASOURCE_*` | 앱을 **호스트에서 직접** 실행할 때 쓰는 접속 정보 (compose 로 띄우면 자동 주입) |
+| `JPA_DDL_AUTO` | 로컬은 `update`, 운영은 `validate` |
+| `JWT_SECRET_KEY` | HS256 서명 키. Base64 32바이트 이상 — `openssl rand -base64 32` |
+| `ACCESS_TOKEN_EXPIRATION` | 밀리초 단위 (1시간 = `3600000`) |
+| `KAKAO_CLIENT_ID` / `KAKAO_CLIENT_SECRET` | [카카오 개발자센터](https://developers.kakao.com) 앱 키. Redirect URI 에 `{서버주소}/api/oauth2/kakao` 등록 필요 |
+| `DOMAIN` | 로그인 성공 후 리다이렉트할 프론트엔드 주소 |
+| `SERVER_PORT` | 기본 `8080` |
+
+### 2. 실행
+
+```bash
+docker compose up --build        # 앱 + MySQL
+docker compose up -d database    # DB 만 띄우고 앱은 IDE 에서 실행할 때
+```
+
+### 3. 확인
+
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+<br />
+
+## 개발
+
+```bash
+./gradlew build            # 컴파일 + 테스트
+./gradlew test             # 테스트만 (Docker 필요 — Testcontainers 로 MySQL 을 띄움)
+./gradlew spotlessApply    # 포맷 적용 — 커밋 전 필수
+./gradlew spotlessCheck    # 포맷 검사 (CI 에서 수행)
+```
+
+<br />
+
+## 문서
+
+`docs/plans/` 에 2026년 기준 전수조사 결과와 개선 계획이 있다.
+작업 전에 [docs/plans/README.md](docs/plans/README.md) 부터 읽는 것을 권한다.
+
+| 문서 | 내용 |
+| --- | --- |
+| [13. 실행 로드맵](docs/plans/13-roadmap.md) | 작업 시작 지점. Phase 0~9 |
+| [01. 코드 전수조사](docs/plans/01-code-audit.md) | 알려진 결함 목록 |
+| [02. 게임 규칙 대조표](docs/plans/02-game-rules-audit.md) | 공식 규칙 22개 대조 |
+| [07. 아키텍처 결정](docs/plans/07-architecture-decision.md) | ADR 7건 |

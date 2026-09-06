@@ -1,44 +1,57 @@
-version: "3.8"
-
 services:
   backend:
-    container_name: server
+    container_name: morris-server
     build:
       context: .
       dockerfile: Dockerfile
-    platform: linux/amd64
     ports:
-      - 8080:8080
+      - "${SERVER_PORT:-8080}:8080"
     environment:
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
-    restart: unless-stopped
+      # 컨테이너 안에서는 서비스명으로 접근. .env 의 SPRING_DATASOURCE_URL 은 호스트 직접 실행용
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/${MYSQL_DATABASE}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      DOMAIN: ${DOMAIN}
     depends_on:
-      - database
-    networks:
-      - network
+      # condition 없이 두면 DB 보다 먼저 떠서 기동에 실패함
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [morris]
 
   database:
-    container_name: mysql_db
-    image: mysql:latest
-    platform: linux/amd64
+    container_name: morris-mysql
+    image: mysql:8.4
     environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_ROOT_HOST=${MYSQL_ROOT_HOST}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - ${MYSQL_PORT}:3306
+      - "${MYSQL_PORT:-3306}:3306"
+    command:
+      # t4g.small(2GiB) 에 앱과 동거하므로 기본값(400MB+)으로는 OOM
+      - --innodb-buffer-pool-size=192M
+      - --performance-schema=OFF
+      - --max-connections=20
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     volumes:
-      - nine_morris_mysql_volume:/var/lib/mysql
-      - ./mysql-init.d:/docker-entrypoint-initdb.d
-    networks:
-      - network
-    restart: always
+      - mysql-data:/var/lib/mysql
+    restart: unless-stopped
+    networks: [morris]
 
 networks:
-  network:
+  morris:
 
 volumes:
-  nine_morris_mysql_volume:
+  mysql-data:
