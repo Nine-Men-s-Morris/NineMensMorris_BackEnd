@@ -1,1 +1,6 @@
 rootProject.name = 'nine-mens-morris'
+
+include 'morris-core'
+include 'morris-storage'
+include 'morris-support'
+include 'morris-api'

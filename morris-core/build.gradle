@@ -1,0 +1,4 @@
+// 게임 규칙 엔진. Spring / JPA / STOMP 에 의존하지 않음
+// 여기에 Spring 의존성이 한 줄이라도 추가되면 잘못 가고 있다는 신호
+// (docs/plans/07-architecture-decision.md ADR-1)
+dependencies {}

@@ -2,15 +2,23 @@
 FROM eclipse-temurin:21-jdk-noble AS builder
 WORKDIR /build
 
-# 의존성만 먼저 받아 레이어 캐싱. 소스만 바뀌면 이 단계는 재사용됨
+# 빌드 스크립트만 먼저 넣어 의존성 레이어를 캐싱. 소스만 바뀌면 이 단계는 재사용됨
 COPY gradle gradle
 COPY gradlew settings.gradle build.gradle ./
-RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
+COPY morris-core/build.gradle    morris-core/
+COPY morris-storage/build.gradle morris-storage/
+COPY morris-support/build.gradle morris-support/
+COPY morris-api/build.gradle     morris-api/
+RUN chmod +x gradlew && ./gradlew :morris-api:dependencies --no-daemon
 
-COPY src src
+COPY morris-core/src    morris-core/src
+COPY morris-storage/src morris-storage/src
+COPY morris-support/src morris-support/src
+COPY morris-api/src     morris-api/src
+
 # 테스트는 Testcontainers 로 Docker 를 요구하므로 이미지 빌드 안에서 못 돌림
 # CI(.github/workflows/build.yml) 에서 이미 수행함
-RUN ./gradlew bootJar --no-daemon -x test
+RUN ./gradlew :morris-api:bootJar --no-daemon -x test
 
 # ── run ─────────────────────────────────────────────────────────────
 # alpine 변형은 오래된 alpine:3 베이스를 물고 있어 Critical 2 / High 9
@@ -19,7 +27,7 @@ FROM eclipse-temurin:21-jre-noble
 RUN groupadd -r app && useradd -r -g app app
 WORKDIR /app
 
-COPY --from=builder /build/build/libs/*.jar app.jar
+COPY --from=builder /build/morris-api/build/libs/*.jar app.jar
 USER app
 
 EXPOSE 8080

@@ -1,82 +1,72 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.5.16'
-    id 'io.spring.dependency-management' version '1.1.7'
+    // 루트에는 적용하지 않음. bootJar 는 morris-api 에서만 만듦
+    id 'org.springframework.boot' version '3.5.16' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
     id 'com.diffplug.spotless' version '7.0.4'
 }
 
-group = 'com.ninemensmorris'
-version = '0.0.1-SNAPSHOT'
+allprojects {
+    group = 'com.ninemensmorris'
+    version = '0.0.1-SNAPSHOT'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+    repositories {
+        mavenCentral()
     }
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
+subprojects {
+    // api 설정을 쓰려면 java 가 아니라 java-library 여야 함
+    apply plugin: 'java-library'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'com.diffplug.spotless'
 
-repositories {
-    mavenCentral()
-}
-
-ext {
-    jjwtVersion = '0.13.0'
-}
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
-    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
-    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
-
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.mysql:mysql-connector-j'
-
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-    testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:mysql'
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
-}
-
-spotless {
     java {
-        target 'src/**/*.java'
-        // 빌더 체인이 많아 google-java-format 보다 줄바꿈이 자연스러움
-        palantirJavaFormat()
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
     }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom SpringBootPlugin.BOM_COORDINATES
+        }
+    }
+
+    dependencies {
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testImplementation 'org.assertj:assertj-core'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    spotless {
+        java {
+            target 'src/**/*.java'
+            // 빌더 체인이 많아 google-java-format 보다 줄바꿈이 자연스러움
+            palantirJavaFormat()
+            removeUnusedImports()
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+}
+
+// 루트는 자바 외 파일만 담당
+spotless {
     format 'misc', {
-        target '*.gradle', '*.md', '.gitignore', 'src/**/*.yml', 'src/**/*.xml'
+        target '*.gradle', '*.md', '.gitignore', '**/src/**/*.yml', '.github/**/*.yml'
         trimTrailingWhitespace()
         endWithNewline()
     }
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
-// bootJar 만 배포. plain jar 는 생성하지 않음
-tasks.named('jar') {
-    enabled = false
 }

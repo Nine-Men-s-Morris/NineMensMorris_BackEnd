@@ -1,6 +1,6 @@
 package com.ninemensmorris.game.dto.morris;
 
-import com.ninemensmorris.game.domain.MorrisStatus;
+import com.ninemensmorris.core.GameStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +20,7 @@ public class StonePlacementResponseDto {
     private int guestTotal;
     private int phase;
     private boolean isRemoving;
-    private MorrisStatus.Status status;
+    private GameStatus status;
     private Long winner;
     private Long loser;
 }

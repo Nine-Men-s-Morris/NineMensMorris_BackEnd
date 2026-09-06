@@ -5,8 +5,8 @@ import com.ninemensmorris.common.response.ErrorCode;
 import com.ninemensmorris.common.response.MorrisResponse;
 import com.ninemensmorris.common.response.MorrisResponse.ResponseType;
 import com.ninemensmorris.common.response.MorrisResponseCode;
+import com.ninemensmorris.core.GameStatus;
 import com.ninemensmorris.game.domain.GameRoom;
-import com.ninemensmorris.game.domain.MorrisStatus;
 import com.ninemensmorris.game.dto.morris.*;
 import com.ninemensmorris.game.repository.GameRoomRepository;
 import com.ninemensmorris.user.service.UserService;
@@ -89,7 +89,7 @@ public class MorrisService {
                 .guestTotal(9)
                 .phase(1)
                 .isRemoving(false)
-                .status(MorrisStatus.Status.PLAYING)
+                .status(GameStatus.PLAYING)
                 .winner(null)
                 .loser(null)
                 .build();
@@ -123,7 +123,7 @@ public class MorrisService {
                         .guestTotal(guestTotal.get(gameId))
                         .phase(gamePhases.get(gameId))
                         .isRemoving(true)
-                        .status(MorrisStatus.Status.PLAYING)
+                        .status(GameStatus.PLAYING)
                         .winner(null)
                         .loser(null)
                         .build();
@@ -147,7 +147,7 @@ public class MorrisService {
                         .guestTotal(guestTotal.get(gameId))
                         .phase(gamePhases.get(gameId))
                         .isRemoving(true)
-                        .status(MorrisStatus.Status.PLAYING)
+                        .status(GameStatus.PLAYING)
                         .winner(null)
                         .loser(null)
                         .build();
@@ -174,7 +174,7 @@ public class MorrisService {
                 .guestTotal(guestTotal.get(gameId))
                 .phase(gamePhases.get(gameId))
                 .isRemoving(false)
-                .status(MorrisStatus.Status.PLAYING)
+                .status(GameStatus.PLAYING)
                 .winner(null)
                 .loser(null)
                 .build();
@@ -204,7 +204,7 @@ public class MorrisService {
                     .guestTotal(guestTotal.get(gameId))
                     .phase(gamePhases.get(gameId))
                     .isRemoving(false)
-                    .status(MorrisStatus.Status.PLAYING)
+                    .status(GameStatus.PLAYING)
                     .winner(null)
                     .loser(null)
                     .build();
@@ -225,7 +225,7 @@ public class MorrisService {
                     .guestTotal(guestTotal.get(gameId))
                     .phase(gamePhases.get(gameId))
                     .isRemoving(false)
-                    .status(MorrisStatus.Status.PLAYING)
+                    .status(GameStatus.PLAYING)
                     .winner(null)
                     .loser(null)
                     .build();
@@ -262,7 +262,7 @@ public class MorrisService {
                 .guestTotal(guestTotal.get(gameId))
                 .phase(gamePhases.get(gameId))
                 .isRemoving(false)
-                .status(MorrisStatus.Status.PLAYING)
+                .status(GameStatus.PLAYING)
                 .winner(null)
                 .loser(null)
                 .build();
@@ -297,7 +297,7 @@ public class MorrisService {
                     .guestTotal(guestTotal.get(gameId))
                     .phase(gamePhases.get(gameId))
                     .isRemoving(false)
-                    .status(MorrisStatus.Status.FINISHED)
+                    .status(GameStatus.FINISHED)
                     .winner(winnerId)
                     .loser(loserId)
                     .build();
@@ -335,7 +335,7 @@ public class MorrisService {
                 .guestTotal(guestTotal.get(gameId))
                 .phase(gamePhases.get(gameId))
                 .isRemoving(false)
-                .status(MorrisStatus.Status.FINISHED)
+                .status(GameStatus.FINISHED)
                 .winner(winnerId)
                 .loser(loserId)
                 .build();
