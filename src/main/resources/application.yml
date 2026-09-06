@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: nine-mens-morris
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    # REST/STOMP 전용이라 뷰 렌더링이 없다. 켜두면 응답 완료까지 커넥션을 붙들고 있다.
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            # CustomOAuth2UserService 가 getClientName().equals("kakao") 로 분기한다.
+            # 이 값을 바꾸면 로그인이 조용히 실패한다. (docs/plans/01-code-audit.md P1-17)
+            client-name: kakao
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            # SecurityConfig 의 redirectionEndpoint baseUri 와 일치해야 한다.
+            redirect-uri: "{baseUrl}/api/oauth2/kakao"
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            scope:
+              - profile_nickname
+              - profile_image
+              - account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+server:
+  port: ${SERVER_PORT:8080}
+
+# HS256 서명 키. Base64 인코딩된 32바이트(256비트) 이상이어야 한다.
+JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+
+# 밀리초 단위. JwtProvider 가 now.getTime() + 이 값으로 만료 시각을 계산한다.
+# 주의: OAuth2SuccessHandler 는 이 값을 Cookie.setMaxAge(초) 에 그대로 넘긴다.
+#       현재 쿠키가 JWT 보다 1000배 오래 산다. (docs/plans/01-code-audit.md P1-3)
+ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION:3600000}
+
+# 로그인 성공 후 리다이렉트할 프론트엔드 주소
+DOMAIN: ${DOMAIN:http://localhost:5173}
+
+# 자체 가입 사용자의 기본 프로필 이미지.
+# AuthService 한 곳에서만 쓰이며, 자체 가입 기능 자체가 제거 대상이다.
+# (docs/plans/01-code-audit.md P1-13 / docs/plans/13-roadmap.md Phase 1)
+DEFAULT_PROFILE_IMAGE: ${DEFAULT_PROFILE_IMAGE:https://placehold.co/150x150?text=Player}
