@@ -281,13 +281,8 @@ public class MorrisService {
         if (winnerId != null) {
             Long loserId = (winnerId.equals(gameRoom.getPlayerOneId())) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
 
-            if (winnerId.equals(gameRoom.getPlayerOneId())) {
-                userService.increaseScore(winnerId, 30);
-                userService.decreaseScore(loserId, 20);
-            } else {
-                userService.increaseScore(loserId, 30);
-                userService.decreaseScore(winnerId, 20);
-            }
+            userService.increaseScore(winnerId, 30);
+            userService.decreaseScore(loserId, 20);
 
             gameRoomRepository.delete(gameRoom);
 
