@@ -24,6 +24,9 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
+cors:
+  allowed-origins: http://localhost:5173
+
 # 테스트 전용 더미 값. 실제 키가 아님
 JWT_SECRET_KEY: dGVzdC1vbmx5LXNlY3JldC1rZXktMzJieXRlcy1sb25nISE=
 ACCESS_TOKEN_EXPIRATION: 3600000

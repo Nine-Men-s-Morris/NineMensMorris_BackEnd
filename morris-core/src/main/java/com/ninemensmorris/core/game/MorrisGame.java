@@ -40,6 +40,9 @@ public final class MorrisGame {
     private Stone drawOfferedBy;
     private int movesSinceRemoval;
 
+    // 판 전체 착수 수. 조기 종료 판정에 씀
+    private int totalMoves;
+
     public MorrisGame(Stone firstTurn) {
         this(new Board(), firstTurn, STONES_PER_PLAYER, STONES_PER_PLAYER);
     }
@@ -185,6 +188,7 @@ public final class MorrisGame {
     // 턴을 넘기고 종료 조건을 확인
     // 판정 대상은 "다음에 둘 사람"이다. 둘 수가 없으면 그 사람이 진다
     private MoveResult endTurn(boolean removalHappened) {
+        totalMoves++;
         movesSinceRemoval = removalHappened ? 0 : movesSinceRemoval + 1;
         currentTurn = currentTurn.opponent();
 
@@ -296,5 +300,9 @@ public final class MorrisGame {
     // 제거 없이 지나간 수. NO_REMOVAL_DRAW_LIMIT 에 닿으면 무승부
     public int movesSinceRemoval() {
         return movesSinceRemoval;
+    }
+
+    public int totalMoves() {
+        return totalMoves;
     }
 }

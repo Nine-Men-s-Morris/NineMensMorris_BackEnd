@@ -1,63 +1,45 @@
 package com.ninemensmorris.user.service;
 
+import com.ninemensmorris.common.exception.CustomException;
+import com.ninemensmorris.common.response.ErrorCode;
 import com.ninemensmorris.user.domain.User;
-import com.ninemensmorris.user.dto.UserNicknameResponseDto;
-import com.ninemensmorris.user.dto.UserRankDto;
-import com.ninemensmorris.user.dto.UserResponseDto;
+import com.ninemensmorris.user.dto.response.MyProfileResponse;
+import com.ninemensmorris.user.dto.response.NicknameResponse;
+import com.ninemensmorris.user.dto.response.RankingResponse;
 import com.ninemensmorris.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
-    private final EntityManager em;
 
-    public UserResponseDto getUser() {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserId = authentication.getName();
-
-        User user = userRepository.findByUserId(Long.parseLong(currentUserId));
-
-        return UserResponseDto.builder()
-                .userId(user.getUserId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .imageUrl(user.getImageUrl())
-                .role(user.getRole())
-                .score(user.getScore())
-                .build();
+    // 요청자는 파라미터로 받는다. SecurityContextHolder 를 직접 읽으면
+    // STOMP 스레드에서는 비어 있고 비인증이면 "anonymousUser" 가 나와 500 이 됐다
+    public MyProfileResponse findMe(long userId) {
+        User user = find(userId);
+        return MyProfileResponse.of(user, userRepository.findRankByMmr(user.getMmr()));
     }
 
-    public List<UserRankDto> getUserRanks() {
-        List<User> users = em.createQuery("SELECT u FROM User u ORDER BY u.score DESC", User.class)
-                .getResultList();
-
-        return users.stream().map(UserRankDto::new).collect(Collectors.toList());
+    public NicknameResponse findNickname(long userId) {
+        return new NicknameResponse(find(userId).getNickname());
     }
 
-    public UserNicknameResponseDto getUserNickname(Long userId) {
-        User user = userRepository.findNicknameByUserId(userId);
-        return new UserNicknameResponseDto(user.getNickname());
+    public List<RankingResponse> findRankings(int limit) {
+        List<User> top = userRepository.findAllByOrderByMmrDesc(PageRequest.of(0, limit));
+        return IntStream.range(0, top.size())
+                .mapToObj(index -> RankingResponse.of(index + 1, top.get(index)))
+                .toList();
     }
 
-    public void increaseScore(Long userId, int score) {
-        User user = userRepository.findByUserId(userId);
-        user.setScore(user.getScore() + score);
-        userRepository.save(user);
-    }
-
-    public void decreaseScore(Long userId, int score) {
-        User user = userRepository.findByUserId(userId);
-        user.setScore(user.getScore() - score);
-        userRepository.save(user);
+    private User find(long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
     }
 }

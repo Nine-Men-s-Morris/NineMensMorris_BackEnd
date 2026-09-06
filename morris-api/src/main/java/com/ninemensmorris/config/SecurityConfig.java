@@ -1,22 +1,19 @@
 package com.ninemensmorris.config;
 
 import com.ninemensmorris.auth.service.CustomOAuth2UserService;
-import com.ninemensmorris.security.filter.JwtAuthenticationFilter;
-import com.ninemensmorris.security.handler.OAuth2SuccessHandler;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import com.ninemensmorris.security.JwtAuthenticationFilter;
+import com.ninemensmorris.security.OAuth2SuccessHandler;
+import com.ninemensmorris.security.UnauthorizedEntryPoint;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -31,63 +28,54 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomOAuth2UserService oAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final UnauthorizedEntryPoint unauthorizedEntryPoint;
+
+    @Value("${cors.allowed-origins}")
+    private List<String> allowedOrigins;
 
     @Bean
-    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors((cors) -> cors.configurationSource(corsConfigurationSource()))
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .oauth2Login((oauth2) -> oauth2.redirectionEndpoint(endpoint -> endpoint.baseUri("/api/oauth2/kakao"))
+                .oauth2Login(oauth2 -> oauth2.redirectionEndpoint(endpoint -> endpoint.baseUri("/api/oauth2/kakao"))
                         .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService))
                         .successHandler(oAuth2SuccessHandler))
-                .logout((logout) -> logout.logoutUrl("/api/auth/logout")
-                        .logoutSuccessHandler(((request, response, authentication) -> {
-                            SecurityContextHolder.clearContext();
-                        }))
+                .logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> response.setStatus(204))
                         .deleteCookies("access_token"))
-                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
-                        .requestMatchers("/", "/api/oauth2/**")
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 기본을 거부로 둔다. permitAll 이 기본이면 실수로 열린 엔드포인트를 못 잡는다
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/health")
                         .permitAll()
-                        //                        .requestMatchers("/api/user/**").hasRole("USER")
-                        //                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/oauth2/**", "/api/oauth2/**")
+                        .permitAll()
+                        .requestMatchers("/ws/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/rankings")
+                        .permitAll()
+                        .requestMatchers("/api/v1/**")
+                        .authenticated()
                         .anyRequest()
-                        .permitAll())
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling.authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
+                        .denyAll())
+                .exceptionHandling(handling -> handling.authenticationEntryPoint(unauthorizedEntryPoint))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.addAllowedOrigin("http://localhost:5173");
-        configuration.addAllowedOrigin("https://ninemensmorris.site");
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
+        // 하드코딩하지 않는다. GitHub Pages 주소는 배포 환경마다 다르다
+        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-}
-
-class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
-
-    @Override
-    public void commence(
-            HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
-            throws IOException, ServletException {
-
-        response.setContentType("application/json");
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-
-        // {"code": "NP", "message": "No Permission}
-        response.getWriter().write("{\"code\": \"NP\", \"message\": \"No Permission\"}");
     }
 }

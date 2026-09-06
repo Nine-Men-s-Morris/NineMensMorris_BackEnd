@@ -1,5 +1,6 @@
 // 엔티티 + 리포지토리
 dependencies {
+    api project(':morris-core')
     api 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     // JDBC 드라이버는 영속성 관심사. runtimeOnly 도 runtimeElements 에 포함되어

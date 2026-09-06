@@ -46,6 +46,10 @@ spring:
 server:
   port: ${SERVER_PORT:8080}
 
+# 프론트엔드 오리진. GitHub Pages 주소는 배포마다 다르므로 하드코딩하지 않음
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
 # HS256 서명 키. Base64 인코딩된 32바이트(256비트) 이상
 JWT_SECRET_KEY: ${JWT_SECRET_KEY}
 
