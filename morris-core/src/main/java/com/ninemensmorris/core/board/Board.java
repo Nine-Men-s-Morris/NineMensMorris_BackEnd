@@ -1,4 +1,4 @@
-package com.ninemensmorris.core;
+package com.ninemensmorris.core.board;
 
 import java.util.Arrays;
 

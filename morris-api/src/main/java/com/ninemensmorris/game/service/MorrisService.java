@@ -5,7 +5,7 @@ import com.ninemensmorris.common.response.ErrorCode;
 import com.ninemensmorris.common.response.MorrisResponse;
 import com.ninemensmorris.common.response.MorrisResponse.ResponseType;
 import com.ninemensmorris.common.response.MorrisResponseCode;
-import com.ninemensmorris.core.GameStatus;
+import com.ninemensmorris.core.game.GameStatus;
 import com.ninemensmorris.game.domain.GameRoom;
 import com.ninemensmorris.game.dto.morris.*;
 import com.ninemensmorris.game.repository.GameRoomRepository;

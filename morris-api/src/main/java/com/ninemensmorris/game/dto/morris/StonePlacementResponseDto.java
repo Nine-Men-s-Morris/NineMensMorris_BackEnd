@@ -1,6 +1,6 @@
 package com.ninemensmorris.game.dto.morris;
 
-import com.ninemensmorris.core.GameStatus;
+import com.ninemensmorris.core.game.GameStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

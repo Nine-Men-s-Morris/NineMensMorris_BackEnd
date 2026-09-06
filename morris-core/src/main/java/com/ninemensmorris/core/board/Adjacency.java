@@ -1,4 +1,4 @@
-package com.ninemensmorris.core;
+package com.ninemensmorris.core.board;
 
 // 지점 간 인접 관계. 2단계(이동)에서 돌은 인접한 빈 지점으로만 갈 수 있음
 public final class Adjacency {
