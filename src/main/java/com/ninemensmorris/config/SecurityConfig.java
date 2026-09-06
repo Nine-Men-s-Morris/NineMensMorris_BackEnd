@@ -6,6 +6,7 @@ import com.ninemensmorris.security.handler.OAuth2SuccessHandler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,8 +26,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.io.IOException;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -39,39 +38,30 @@ public class SecurityConfig {
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .cors((cors) -> cors
-                        .configurationSource(corsConfigurationSource())
-                )
+        http.cors((cors) -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .oauth2Login((oauth2) -> oauth2
-                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/api/oauth2/kakao"))
+                .oauth2Login((oauth2) -> oauth2.redirectionEndpoint(endpoint -> endpoint.baseUri("/api/oauth2/kakao"))
                         .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService))
-                        .successHandler(oAuth2SuccessHandler)
-                )
-                .logout((logout) -> logout
-                        .logoutUrl("/api/auth/logout")
+                        .successHandler(oAuth2SuccessHandler))
+                .logout((logout) -> logout.logoutUrl("/api/auth/logout")
                         .logoutSuccessUrl("https://www.ninemensmorris.site")
                         .addLogoutHandler(logoutHandler)
                         .logoutSuccessHandler(((request, response, authentication) -> {
                             SecurityContextHolder.clearContext();
                         }))
-                        .deleteCookies("access_token")
-                )
-                .sessionManagement(
-                        (session) -> session
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                        .deleteCookies("access_token"))
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
-                        .requestMatchers("/", "/api/oauth2/**").permitAll()
-//                        .requestMatchers("/api/user/**").hasRole("USER")
-//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest().permitAll()
-                )
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
+                        .requestMatchers("/", "/api/oauth2/**")
+                        .permitAll()
+                        //                        .requestMatchers("/api/user/**").hasRole("USER")
+                        //                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .anyRequest()
+                        .permitAll())
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling.authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -101,8 +91,9 @@ public class SecurityConfig {
 class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException) throws IOException, ServletException {
+    public void commence(
+            HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
+            throws IOException, ServletException {
 
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);

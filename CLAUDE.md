@@ -126,6 +126,24 @@ docker compose up            # 앱 + MySQL
 
 ## 컨벤션
 
+### 주석
+
+- **음슴체로 작성.** `~한다` / `~이다` 금지
+- **문장 끝에 온점을 찍지 않는다**
+- 무엇을 하는지가 아니라 **왜 그런지**를 적는다. 코드를 읽으면 아는 내용은 쓰지 않는다
+
+```java
+// 만료 토큰 접속은 정상 흐름. ERROR 로 남기면 로그 도배
+log.debug("JWT 검증 실패: {}", exception.getMessage());
+```
+
+```java
+// 나쁜 예 — 코드에 이미 있는 내용이고, 서술체이며, 온점이 있다.
+// 서명 키를 생성한다.
+```
+
+### 그 외
+
 - 커밋 메시지: Conventional Commits + 한국어 본문 (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`)
 - 삭제·포맷·리네임은 기능 변경과 **같은 커밋에 섞지 않는다**
 - 서비스 클래스: `@Transactional(readOnly = true)` + 쓰기 메서드에만 `@Transactional`

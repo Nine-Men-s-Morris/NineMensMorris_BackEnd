@@ -1,7 +1,6 @@
 package com.ninemensmorris.game.controller;
 
 import com.ninemensmorris.common.response.MorrisResponse;
-import com.ninemensmorris.game.dto.GameRoom.GameRoomDto;
 import com.ninemensmorris.game.dto.Morris.*;
 import com.ninemensmorris.game.service.GameRoomService;
 import com.ninemensmorris.game.service.MorrisService;
@@ -10,8 +9,6 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor

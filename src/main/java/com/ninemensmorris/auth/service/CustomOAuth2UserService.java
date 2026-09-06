@@ -3,6 +3,8 @@ package com.ninemensmorris.auth.service;
 import com.ninemensmorris.user.domain.CustomOAuth2User;
 import com.ninemensmorris.user.domain.User;
 import com.ninemensmorris.user.repository.UserRepository;
+import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -10,9 +12,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -27,7 +26,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String oauthClientName = userRequest.getClientRegistration().getClientName();
 
         try {
-            //System.out.println(new ObjectMapper().writeValueAsString(oAuth2User.getAttributes()));
+            // System.out.println(new ObjectMapper().writeValueAsString(oAuth2User.getAttributes()));
         } catch (Exception exception) {
             log.error("Failed to oAuth2User: {}", exception.getMessage());
         }
@@ -51,7 +50,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> properties = oAuth2User.getAttribute("properties");
         Map<String, Object> account = oAuth2User.getAttribute("kakao_account");
 
-        String nickname = (String) properties.get("nickname") ;
+        String nickname = (String) properties.get("nickname");
         String email = (String) account.get("email");
         String profileImg = (String) properties.get("profile_image");
 

@@ -13,9 +13,8 @@ public class CustomErrorResponse {
     private String name;
     private String message;
 
-    public static ResponseEntity<CustomErrorResponse> toResponseEntity(ErrorCode e){
-        return ResponseEntity
-                .status(e.getStatus())
+    public static ResponseEntity<CustomErrorResponse> toResponseEntity(ErrorCode e) {
+        return ResponseEntity.status(e.getStatus())
                 .body(CustomErrorResponse.builder()
                         .status(e.getStatus())
                         .name(e.name())

@@ -28,6 +28,14 @@ public class MorrisResponse<T> {
     }
 
     public enum ResponseType {
-        SYNC_GAME, ERROR, GAME_START, GAME_STATE_UPDATE, GAME_OVER, GAME_DRAW, GAME_WITHDRAW, REQUEST_DRAW, REJECT_DRAW
+        SYNC_GAME,
+        ERROR,
+        GAME_START,
+        GAME_STATE_UPDATE,
+        GAME_OVER,
+        GAME_DRAW,
+        GAME_WITHDRAW,
+        REQUEST_DRAW,
+        REJECT_DRAW
     }
 }

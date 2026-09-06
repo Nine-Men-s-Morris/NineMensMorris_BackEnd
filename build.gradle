@@ -59,8 +59,8 @@ dependencies {
 spotless {
     java {
         target 'src/**/*.java'
-        // 기존 코드가 스페이스 4칸이므로 AOSP 변형(4칸)을 쓴다.
-        googleJavaFormat('1.28.0').aosp()
+        // 빌더 체인이 많아 google-java-format 보다 줄바꿈이 자연스러움
+        palantirJavaFormat()
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
@@ -76,7 +76,7 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-// bootJar 만 배포한다. plain jar 는 만들지 않는다.
+// bootJar 만 배포. plain jar 는 생성하지 않음
 tasks.named('jar') {
     enabled = false
 }

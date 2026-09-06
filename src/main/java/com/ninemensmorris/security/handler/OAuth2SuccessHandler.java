@@ -6,13 +6,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +26,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private String domainUrl;
 
     @Override
-    public void onAuthenticationSuccess (HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+    public void onAuthenticationSuccess(
+            HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
@@ -39,7 +39,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(Math.toIntExact(accessTokenExpiration));
         accessTokenCookie.setHttpOnly(true);
-        //accessTokenCookie.setSecure(true); // 240404 ldhbenecia | https 설정 이후 사용
+        // accessTokenCookie.setSecure(true); // 240404 ldhbenecia | https 설정 이후 사용
         response.addCookie(accessTokenCookie);
 
         response.addHeader("Authorization", "Bearer " + accessToken);

@@ -5,13 +5,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import java.util.Date;
+import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +53,7 @@ public class JwtProvider {
             this.parser.parseSignedClaims(token);
             return true;
         } catch (Exception exception) {
-            // 만료된 토큰으로 접속하는 것은 정상 흐름이다. ERROR 로 남기면 로그가 도배된다.
+            // 만료 토큰 접속은 정상 흐름. ERROR 로 남기면 로그 도배
             log.debug("JWT 검증 실패: {}", exception.getMessage());
             return false;
         }

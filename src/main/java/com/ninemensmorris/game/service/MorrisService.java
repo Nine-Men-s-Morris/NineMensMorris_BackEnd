@@ -10,14 +10,13 @@ import com.ninemensmorris.game.domain.MorrisStatus;
 import com.ninemensmorris.game.dto.Morris.*;
 import com.ninemensmorris.game.repository.GameRoomRepository;
 import com.ninemensmorris.user.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +51,7 @@ public class MorrisService {
 
         simpMessagingTemplate.convertAndSend("/topic/game/" + gameRoom.getId(), "SOCKET_ERROR");
     }
+
     public void addSocket(Long userId, String sessionId) {
         socketUserMap.put(userId, sessionId);
     }
@@ -135,7 +135,8 @@ public class MorrisService {
                         .loser(null)
                         .build();
 
-                return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.CANNOT_REMOVE, responseDto);
+                return MorrisResponse.response(
+                        ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.CANNOT_REMOVE, responseDto);
             } else {
                 switchTurn(gameId, gameRoom);
             }
@@ -158,7 +159,8 @@ public class MorrisService {
                         .loser(null)
                         .build();
 
-                return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.CANNOT_REMOVE, responseDto);
+                return MorrisResponse.response(
+                        ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.CANNOT_REMOVE, responseDto);
             } else {
                 switchTurn(gameId, gameRoom);
             }
@@ -184,7 +186,8 @@ public class MorrisService {
                 .loser(null)
                 .build();
 
-        return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.STONE_PLACEMENT_SUCCESS, responseDto);
+        return MorrisResponse.response(
+                ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.STONE_PLACEMENT_SUCCESS, responseDto);
     }
 
     public MorrisResponse<StonePlacementResponseDto> removeOpponentStone(RemoveOpponentStoneRequestDto requestDto) {
@@ -234,7 +237,8 @@ public class MorrisService {
                     .loser(null)
                     .build();
 
-            return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.CANNOT_REMOVE_ROW_COLUMN, responseDto);
+            return MorrisResponse.response(
+                    ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.CANNOT_REMOVE_ROW_COLUMN, responseDto);
         }
 
         board[removePosition] = EMPTY_CELL;
@@ -270,7 +274,8 @@ public class MorrisService {
                 .loser(null)
                 .build();
 
-        return MorrisResponse.response(ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.STONE_REMOVAL_SUCCESS, responseDto);
+        return MorrisResponse.response(
+                ResponseType.GAME_STATE_UPDATE, MorrisResponseCode.STONE_REMOVAL_SUCCESS, responseDto);
     }
 
     public MorrisResponse<StonePlacementResponseDto> handleMorrisResult(Long gameId) {
@@ -279,7 +284,9 @@ public class MorrisService {
         Long winnerId = determineWinner(gameId);
 
         if (winnerId != null) {
-            Long loserId = (winnerId.equals(gameRoom.getPlayerOneId())) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
+            Long loserId = (winnerId.equals(gameRoom.getPlayerOneId()))
+                    ? gameRoom.getPlayerTwoId()
+                    : gameRoom.getPlayerOneId();
 
             userService.increaseScore(winnerId, 30);
             userService.decreaseScore(loserId, 20);
@@ -315,7 +322,8 @@ public class MorrisService {
         GameRoom gameRoom = gameRooms.get(gameId);
 
         String[] board = gameBoards.get(gameId);
-        Long winnerId = gameRoom.getPlayerOneId().equals(userId) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
+        Long winnerId =
+                gameRoom.getPlayerOneId().equals(userId) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
         Long loserId = userId;
 
         userService.increaseScore(winnerId, 30);
@@ -372,7 +380,9 @@ public class MorrisService {
     }
 
     private void switchTurn(Long gameId, GameRoom gameRoom) {
-        Long nextTurn = (gameRoom.getPlayerOneId().equals(currentTurns.get(gameId))) ? gameRoom.getPlayerTwoId() : gameRoom.getPlayerOneId();
+        Long nextTurn = (gameRoom.getPlayerOneId().equals(currentTurns.get(gameId)))
+                ? gameRoom.getPlayerTwoId()
+                : gameRoom.getPlayerOneId();
         currentTurns.put(gameId, nextTurn);
         playerStones.put(gameId, (nextTurn.equals(gameRoom.getPlayerOneId())) ? PLAYER_ONE_STONE : PLAYER_TWO_STONE);
     }
@@ -400,20 +410,22 @@ public class MorrisService {
      * 3연속 행, 열 체킹
      */
     private static final int[][] rowTriples = {
-            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11},
-            {12, 13, 14}, {15, 16, 17}, {18, 19, 20}, {21, 22, 23}
+        {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11},
+        {12, 13, 14}, {15, 16, 17}, {18, 19, 20}, {21, 22, 23}
     };
 
     private static final int[][] columnTriples = {
-            {0, 9, 21}, {3, 10, 18}, {6, 11, 15}, {1, 4, 7},
-            {16, 19, 22}, {8, 12, 17}, {5, 13, 20}, {2, 14, 23}
+        {0, 9, 21}, {3, 10, 18}, {6, 11, 15}, {1, 4, 7},
+        {16, 19, 22}, {8, 12, 17}, {5, 13, 20}, {2, 14, 23}
     };
 
     private boolean checkRemovalConditions(Long gameId, String[] board, int position) {
         for (int[] triple : rowTriples) {
             if (Arrays.stream(triple).anyMatch(p -> p == position)) {
                 String currentPlayerStone = playerStones.get(gameId);
-                if (board[triple[0]].equals(currentPlayerStone) && board[triple[1]].equals(currentPlayerStone) && board[triple[2]].equals(currentPlayerStone)) {
+                if (board[triple[0]].equals(currentPlayerStone)
+                        && board[triple[1]].equals(currentPlayerStone)
+                        && board[triple[2]].equals(currentPlayerStone)) {
                     return true;
                 }
             }
@@ -422,7 +434,9 @@ public class MorrisService {
         for (int[] triple : columnTriples) {
             if (Arrays.stream(triple).anyMatch(p -> p == position)) {
                 String currentPlayerStone = playerStones.get(gameId);
-                if (board[triple[0]].equals(currentPlayerStone) && board[triple[1]].equals(currentPlayerStone) && board[triple[2]].equals(currentPlayerStone)) {
+                if (board[triple[0]].equals(currentPlayerStone)
+                        && board[triple[1]].equals(currentPlayerStone)
+                        && board[triple[2]].equals(currentPlayerStone)) {
                     return true;
                 }
             }
@@ -466,7 +480,6 @@ public class MorrisService {
     /**
      * 게임 승패 판단 체킹
      */
-
     private boolean checkEndGameConditions(Long gameId, String[] board, GameRoom gameRoom) {
         int playerOneRemainStones = hostTotal.get(gameId);
         int playerTwoRemainStones = guestTotal.get(gameId);
@@ -505,14 +518,30 @@ public class MorrisService {
     private boolean checkPlayerCanMove(String[] board, GameRoom gameRoom, Long userId) {
         String playerStone = (userId.equals(gameRoom.getPlayerOneId())) ? PLAYER_ONE_STONE : PLAYER_TWO_STONE;
         int[][] adjacentIndexes = {
-                {1, 9}, {0, 2, 4}, {1, 14},
-                {4, 10}, {1, 3, 5, 7}, {4, 13},
-                {7, 11}, {4, 6, 8}, {7, 12},
-                {0, 10, 21}, {3, 9, 11, 18}, {6, 10, 15},
-                {8, 13, 17}, {5, 12, 14, 20}, {2, 13, 23},
-                {11, 16}, {15, 17, 19}, {12, 16}, {10, 19},
-                {16, 18, 20, 22}, {13, 19}, {9, 22}, {19, 21, 23},
-                {14, 22}
+            {1, 9},
+            {0, 2, 4},
+            {1, 14},
+            {4, 10},
+            {1, 3, 5, 7},
+            {4, 13},
+            {7, 11},
+            {4, 6, 8},
+            {7, 12},
+            {0, 10, 21},
+            {3, 9, 11, 18},
+            {6, 10, 15},
+            {8, 13, 17},
+            {5, 12, 14, 20},
+            {2, 13, 23},
+            {11, 16},
+            {15, 17, 19},
+            {12, 16},
+            {10, 19},
+            {16, 18, 20, 22},
+            {13, 19},
+            {9, 22},
+            {19, 21, 23},
+            {14, 22}
         };
 
         for (int i = 0; i < board.length; i++) {

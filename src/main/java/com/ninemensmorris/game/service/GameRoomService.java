@@ -9,15 +9,14 @@ import com.ninemensmorris.game.dto.GameRoom.GameRoomDto;
 import com.ninemensmorris.game.repository.GameRoomRepository;
 import com.ninemensmorris.user.domain.User;
 import com.ninemensmorris.user.repository.UserRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

@@ -3,7 +3,9 @@ package com.ninemensmorris.game.domain;
 public class MorrisStatus {
 
     public enum Status {
-        WAITING, PLAYING, FINISHED
+        WAITING,
+        PLAYING,
+        FINISHED
     }
 
     private Status currentStatus;

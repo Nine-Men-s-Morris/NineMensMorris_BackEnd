@@ -1,9 +1,9 @@
 package com.ninemensmorris.game.dto.Morris;
 
 import com.ninemensmorris.game.domain.MorrisStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.AllArgsConstructor;
 
 @Builder
 @Getter

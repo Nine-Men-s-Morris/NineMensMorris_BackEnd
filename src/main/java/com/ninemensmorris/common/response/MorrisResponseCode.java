@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public enum MorrisResponseCode {
-
     GAME_START("게임을 시작합니다."),
     THREE_IN_A_ROW("3개 연속입니다. 돌을 제거하세요."),
     STONE_PLACEMENT_SUCCESS("돌을 성공적으로 놓았습니다."),

@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 public class GameRoom {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "game_room_id")
     private Long id;
 

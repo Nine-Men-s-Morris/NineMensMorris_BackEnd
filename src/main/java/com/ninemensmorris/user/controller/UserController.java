@@ -6,13 +6,12 @@ import com.ninemensmorris.user.dto.UserNicknameResponseDto;
 import com.ninemensmorris.user.dto.UserRankDto;
 import com.ninemensmorris.user.dto.UserResponseDto;
 import com.ninemensmorris.user.service.UserService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
