@@ -24,7 +24,7 @@ spring:
         registration:
           kakao:
             # CustomOAuth2UserService 가 getClientName().equals("kakao") 로 분기
-            # 이 값을 바꾸면 로그인이 조용히 실패 (docs/plans/01-code-audit.md P1-17)
+            # 이 값을 바꾸면 로그인이 실패
             client-name: kakao
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
@@ -50,8 +50,8 @@ server:
 JWT_SECRET_KEY: ${JWT_SECRET_KEY}
 
 # 밀리초 단위. JwtProvider 가 now.getTime() + 이 값으로 만료 시각 계산
-# 주의: OAuth2SuccessHandler 가 이 값을 Cookie.setMaxAge(초) 에 그대로 전달
-#       현재 쿠키가 JWT 보다 1000배 오래 삶 (docs/plans/01-code-audit.md P1-3)
+# 주의: OAuth2SuccessHandler 가 이 값을 Cookie.setMaxAge(초) 에 그대로 전달해
+#       현재 쿠키가 JWT 보다 1000배 오래 삶
 ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION:3600000}
 
 # 로그인 성공 후 리다이렉트할 프론트엔드 주소

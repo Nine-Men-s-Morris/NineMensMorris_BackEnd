@@ -124,30 +124,19 @@ docker compose up            # 앱 + MySQL
   건드릴 때 [06](docs/plans/06-persistence-and-queries.md) 2절의 목표 구조를 참고한다.
 - **테스트가 사실상 없다.** 로직을 바꾸면 테스트를 같이 쓴다 ([11](docs/plans/11-testing-strategy.md)).
 
-## 컨벤션
+## 세부 규칙
 
-### 주석
+상세 컨벤션은 `.claude/rules/` 에 있다. 작업 전에 해당하는 것을 읽는다.
 
-- **음슴체로 작성.** `~한다` / `~이다` 금지
-- **문장 끝에 온점을 찍지 않는다**
-- 무엇을 하는지가 아니라 **왜 그런지**를 적는다. 코드를 읽으면 아는 내용은 쓰지 않는다
+| 룰 | 내용 |
+| --- | --- |
+| [work-start-checklist.md](.claude/rules/work-start-checklist.md) | **작업 시작 시 여기부터.** 컨텍스트 잡는 순서 |
+| [java-conventions.md](.claude/rules/java-conventions.md) | **용어집**, 모듈 경계, 주석, 객체 생성, 트랜잭션, JPA, 계층, 테스트 |
+| [git-conventions.md](.claude/rules/git-conventions.md) | 브랜치, 커밋 메시지, 의미 단위 커밋 |
+| [decisions-workflow.md](.claude/rules/decisions-workflow.md) | ADR 작성 기준과 위치 |
 
-```java
-// 만료 토큰 접속은 정상 흐름. ERROR 로 남기면 로그 도배
-log.debug("JWT 검증 실패: {}", exception.getMessage());
-```
+특히 자주 어기는 것 세 가지:
 
-```java
-// 나쁜 예 — 코드에 이미 있는 내용이고, 서술체이며, 온점이 있다.
-// 서명 키를 생성한다.
-```
-
-### 그 외
-
-- 커밋 메시지: Conventional Commits + 한국어 본문 (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`)
-- 삭제·포맷·리네임은 기능 변경과 **같은 커밋에 섞지 않는다**
-- 서비스 클래스: `@Transactional(readOnly = true)` + 쓰기 메서드에만 `@Transactional`
-- 엔티티: `@Setter` 금지, 정적 팩터리 + 의도가 드러나는 메서드
-- JPA 연관관계: **`@ManyToOne(fetch = LAZY)` 만 사용.** `@OneToMany`/`@ManyToMany` 금지
-- 요청 DTO / 응답 DTO / Command 는 `record`
-- 자세한 규칙은 [04](docs/plans/04-consistency-and-naming.md), [05](docs/plans/05-api-and-protocol.md)
+- **주석은 음슴체, 온점 없음, 문서 경로 금지**
+- **코드 식별자는 용어집을 따른다** (`mill`, `point`, `resign`, `draw`, `roomId`)
+- **커밋 전 `./gradlew spotlessApply build` 를 실제로 돌린다**
