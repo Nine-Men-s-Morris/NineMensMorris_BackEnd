@@ -51,6 +51,8 @@ subprojects {
             target 'src/**/*.java'
             // 빌더 체인이 많아 google-java-format 보다 줄바꿈이 자연스러움
             palantirJavaFormat()
+            // 판 좌표표처럼 줄바꿈이 곧 의미인 곳은 spotless:off / spotless:on 으로 제외
+            toggleOffOn()
             removeUnusedImports()
             trimTrailingWhitespace()
             endWithNewline()
