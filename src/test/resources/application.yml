@@ -28,4 +28,3 @@ spring:
 JWT_SECRET_KEY: dGVzdC1vbmx5LXNlY3JldC1rZXktMzJieXRlcy1sb25nISE=
 ACCESS_TOKEN_EXPIRATION: 3600000
 DOMAIN: http://localhost:5173
-DEFAULT_PROFILE_IMAGE: http://localhost/default.png

@@ -56,8 +56,3 @@ ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION:3600000}
 
 # 로그인 성공 후 리다이렉트할 프론트엔드 주소
 DOMAIN: ${DOMAIN:http://localhost:5173}
-
-# 자체 가입 사용자의 기본 프로필 이미지
-# AuthService 한 곳에서만 사용. 자체 가입 기능 자체가 제거 대상
-# (docs/plans/01-code-audit.md P1-13 / docs/plans/13-roadmap.md Phase 1)
-DEFAULT_PROFILE_IMAGE: ${DEFAULT_PROFILE_IMAGE:https://placehold.co/150x150?text=Player}

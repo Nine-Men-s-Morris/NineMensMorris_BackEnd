@@ -39,10 +39,8 @@ public class MorrisService {
     private final Map<Long, Integer> hostTotal = new HashMap<>();
     private final Map<Long, Integer> guestTotal = new HashMap<>();
     private final Map<Long, Long> currentTurns = new HashMap<>();
-    private final Map<Long, String> socketUserMap = new HashMap<>();
 
-    public void handleDisconnection(Long userId, String sessionId) {
-        removeSocket(userId, sessionId);
+    public void handleDisconnection(Long userId) {
         GameRoom gameRoom = findRoomByUserId(userId);
         if (gameRoom != null) {
             gameRoomRepository.delete(gameRoom);
@@ -50,14 +48,6 @@ public class MorrisService {
         }
 
         simpMessagingTemplate.convertAndSend("/topic/game/" + gameRoom.getId(), "SOCKET_ERROR");
-    }
-
-    public void addSocket(Long userId, String sessionId) {
-        socketUserMap.put(userId, sessionId);
-    }
-
-    public void removeSocket(Long userId, String sessionId) {
-        socketUserMap.remove(userId, sessionId);
     }
 
     public GameRoom findRoomByUserId(Long userId) {
