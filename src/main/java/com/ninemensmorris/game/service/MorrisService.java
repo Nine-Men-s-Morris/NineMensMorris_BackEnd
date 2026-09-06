@@ -42,17 +42,20 @@ public class MorrisService {
 
     public void handleDisconnection(Long userId) {
         GameRoom gameRoom = findRoomByUserId(userId);
-        if (gameRoom != null) {
-            gameRoomRepository.delete(gameRoom);
-            gameRooms.remove(gameRoom.getId()); // 방에 대한 참조를 해제합니다.
+        // gameRooms 는 startGame 에서만 채워짐. 게임 시작 전에 나가면 항상 null
+        if (gameRoom == null) {
+            return;
         }
 
+        gameRoomRepository.delete(gameRoom);
+        gameRooms.remove(gameRoom.getId());
         simpMessagingTemplate.convertAndSend("/topic/game/" + gameRoom.getId(), "SOCKET_ERROR");
     }
 
     public GameRoom findRoomByUserId(Long userId) {
         for (GameRoom room : gameRooms.values()) {
-            if (room.getPlayerOneId().equals(userId) || room.getPlayerTwoId().equals(userId)) {
+            // playerTwoId 는 nullable. 1인 대기 방이 하나라도 있으면 NPE
+            if (userId.equals(room.getPlayerOneId()) || userId.equals(room.getPlayerTwoId())) {
                 return room;
             }
         }
